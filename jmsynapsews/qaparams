@@ -4,7 +4,7 @@
 	"parameters": {
 		"workspaceName": {
 			"value": "jmsynapseqaws"
-		}
+		},
 		"jmsynapsews-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://jmsynapsedl.dfs.core.windows.net"
 		}
