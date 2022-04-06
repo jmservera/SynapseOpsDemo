@@ -26,10 +26,19 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-      - name: Deploy Azure Resource Manager (ARM) Template
-        uses: Azure/arm-deploy@v1
+
+      - uses: azure/synapse-workspace-deployment@release-1.0
         with:
-          resourceGroupName: synapseeus
-          template: ./jmsynapsews/TemplateForWorkspace.json
-          parameters: ./jmsynapsews/qaparams.json
+          TargetWorkspaceName: 'jmsynapseqaws'
+          TemplateFile: './jmsynapsews/TemplateForWorkspace.json'
+          ParametersFile: './path of the TemplateParametersForWorkspace.json'
+          OverrideArmParameters: './jmsynapsews/TemplateParametersForWorkspace.json'
+          environment: 'Azure Public'
+          resourceGroup: 'synapseeus'
+          clientId: ${{secrets.CLIENTID}}
+          clientSecret:  ${{secrets.CLIENTSECRET}}
+          subscriptionId: '${{secrets.SUBSCRIPTIONID}}'
+          tenantId: '${{secrets.TENANTID}}'
+          DeleteArtifactsNotInTemplate: 'true'
+          managedIdentity: 'False'
+
