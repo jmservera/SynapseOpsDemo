@@ -31,7 +31,7 @@ jobs:
         with:
           TargetWorkspaceName: 'jmsynapseqaws'
           TemplateFile: './jmsynapsews/TemplateForWorkspace.json'
-          ParametersFile: './path of the TemplateParametersForWorkspace.json'
+          ParametersFile: './jmsynapsews/TemplateParametersForWorkspace.json'
           OverrideArmParameters: './jmsynapsews/TemplateParametersForWorkspace.json'
           environment: 'Azure Public'
           resourceGroup: 'synapseeus'
