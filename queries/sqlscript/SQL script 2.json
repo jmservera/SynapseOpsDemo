@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 2",
+	"properties": {
+		"content": {
+			"query": "-- CREATE LOGIN data_explorer WITH PASSWORD = 'My Very Strong Password 1234!';\n\n--CREATE USER data_explorer FOR LOGIN data_explorer;\n--GO\n--GRANT ADMINISTER DATABASE BULK OPERATIONS TO data_explorer;\n--GO\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n            BULK '/jmsynapsefs/NYCTripSmall.parquet',\n            DATA_SOURCE = 'ContosoLake',\n            FORMAT='PARQUET'\n    ) AS [result]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "DataExplorationDB",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
