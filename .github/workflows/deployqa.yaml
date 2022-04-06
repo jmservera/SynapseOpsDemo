@@ -32,4 +32,4 @@ jobs:
         with:
           resourceGroupName: synapseeus
           template: ./jmsynapsews/TemplateForWorkspace.json
-          parameters: ./jmsynapsews/TemplateParametersForWorkspace.json workspaceName=jmsynapseqaws
+          parameters: ./jmsynapsews/qaparams.json
