@@ -124,7 +124,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "-- CREATE LOGIN data_explorer WITH PASSWORD = 'My Very Strong Password 1234!';\n\n--CREATE USER data_explorer FOR LOGIN data_explorer;\n--GO\n--GRANT ADMINISTER DATABASE BULK OPERATIONS TO data_explorer;\n--GO\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n            BULK '/jmsynapsefs/NYCTripSmall.parquet',\n            DATA_SOURCE = 'ContosoLake',\n            FORMAT='PARQUET'\n    ) AS [result]",
+					"query": "-- CREATE LOGIN data_explorer WITH PASSWORD = 'My Very Strong Password 1234!';\n\n--CREATE USER data_explorer FOR LOGIN data_explorer;\n--GO\n--GRANT ADMINISTER DATABASE BULK OPERATIONS TO data_explorer;\n--GO\n\n-- CREATE EXTERNAL DATA SOURCE JmLake\n-- WITH ( LOCATION = 'https://jmsynapsedl.dfs.core.windows.net')\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n            BULK '/jmsynapsefs/NYCTripSmall.parquet',\n            DATA_SOURCE = 'JmLake',\n            FORMAT='PARQUET'\n    ) AS [result]",
 					"metadata": {
 						"language": "sql"
 					},
