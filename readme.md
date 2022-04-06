@@ -1,1 +1,2 @@
-Initialized by Azure Synapse Workspace!
+# SynapseOpsDemo
+DataOps demo
