@@ -11,6 +11,7 @@ jobs:
     if: startsWith(github.event.issue.title, '[Cre]') != 'true'
     needs: check
     runs-on: ubuntu-latest
+    environment: synapseqa
     steps:
 
       - name: Issue Forms Body Parser
@@ -20,6 +21,7 @@ jobs:
       - run: |
           echo -e ${{ toJSON(steps.parse.outputs.data) }}
 
+      - uses: 
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
