@@ -55,4 +55,4 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-          ${{ join(jobs.deploy.steps.template.outputs.*, '\n') }}
+            ${{ join(jobs.deploy.steps.template.outputs.*, '\n') }}
