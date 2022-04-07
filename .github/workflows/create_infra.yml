@@ -18,14 +18,8 @@ jobs:
         uses: stefanbuck/github-issue-parser@v2
         id: issue-parser
         with:
-          template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml          
-        
-      - run: |
-          echo ${{ steps.issue-parser.outputs.jsonString }}
-          echo ${{ fromJSON(steps.issue-parser.outputs.jsonString) }}
-          echo ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}
-          exit 1          
-
+          template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml
+          
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -34,9 +28,9 @@ jobs:
         uses: Azure/arm-deploy@v1
         id: template
         with:
-          resourceGroupName: synapseeus
+          resourceGroupName: ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}
           template: ./template/template.json
-          parameters: name=${{ steps.parse.outputs.data[0].text }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
+          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
   close-on-success:
     needs: deploy
