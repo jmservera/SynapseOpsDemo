@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: GitHub Issue Parser
-        uses: stefanbuck/github-issue-parser@v1.0.4
+        uses: stefanbuck/github-issue-parser@v2
         id: parse
         with:
           template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml          
