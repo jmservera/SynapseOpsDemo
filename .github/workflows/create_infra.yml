@@ -17,7 +17,7 @@ jobs:
         uses: zentered/issue-forms-body-parser@v1.2.1
         
       - run: |
-          echo ${{ join(steps.parse.outputs.data.*, '\n') }}
+          echo ${{ steps.parse.outputs.data.body }}
           exit 1          
 
       - uses: azure/login@v1
