@@ -161,3 +161,5 @@ module defaultDataLakeStorageFilesystemName_resource './nested_defaultDataLakeSt
     defaultDataLakeStorageAccountName_resource
   ]
 }
+
+output workspaceLink string = reference('Microsoft.Synapse/workspaces/${name}', '2021-06-01', 'Full').properties.connectivityEndpoints['web']

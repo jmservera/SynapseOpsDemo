@@ -39,6 +39,13 @@ jobs:
     permissions:
       issues: write
     steps:
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number:  ${{ github.event.issue.number }}
+          body: |
+            az synapse workspace show -n ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
+            Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
       - name: Close Issue after using its data
         uses: peter-evans/close-issue@v2
         with:
