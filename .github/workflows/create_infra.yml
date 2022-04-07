@@ -12,12 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: synapseqa
     steps:
-      - name: Issue Forms Body Parser
+      - name: GitHub Issue Parser
         id: parse
-        uses: zentered/issue-forms-body-parser@v1.2.1
+        uses: stefanbuck/github-issue-parser@v2.0.0
+        with:
+          template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml          
         
       - run: |
-          echo ${{ steps.parse.outputs.data.body }}
+          echo ${{ fromJSON(steps.issue-parser.outputs.jsonString) }}
+          echo ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}
           exit 1          
 
       - uses: azure/login@v1
