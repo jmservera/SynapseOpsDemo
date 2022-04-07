@@ -22,10 +22,9 @@ jobs:
           echo -e ${{ toJSON(steps.parse.outputs.data) }}
 
       - name: Close Issue after using its data
-        uses: roots/issue-closer@v1.1
+        uses: peter-evans/close-issue@v2
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-close-message: "@${issue.user.login} this issue was automatically closed after creating the resource"
+          comment: "@${issue.user.login} this issue was automatically closed after creating the resource"
 
       - uses: azure/login@v1
         with:
