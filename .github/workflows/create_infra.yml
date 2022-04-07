@@ -4,11 +4,11 @@ name: Create Infra
 
 on:
   issues:
-    types: [ opened ]
+    types: [ opened, modified ]
 
 jobs:      
   deploy:
-    if: ${{ startsWith(github.event.issue.title, '[Create]') != 'true' }}
+    if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -21,11 +21,6 @@ jobs:
       - run: |
           echo -e ${{ toJSON(steps.parse.outputs.data) }}
 
-      - name: Close Issue after using its data
-        uses: peter-evans/close-issue@v2
-        with:
-          comment: "@${issue.user.login} this issue was automatically closed after creating the resource"
-
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -37,4 +32,9 @@ jobs:
         with:
           resourceGroupName: synapseeus
           template: ./template/template.json
-          parameters: name=mysynapse defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlServerPassword=${{ secrets.SQL_SERVER }}
+          parameters: name=mysynapse defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
+
+      - name: Close Issue after using its data
+        uses: peter-evans/close-issue@v2
+        with:
+          comment: "@${issue.user.login} this issue was automatically closed after creating the resource"
