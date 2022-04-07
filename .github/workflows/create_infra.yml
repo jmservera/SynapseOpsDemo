@@ -8,12 +8,13 @@ on:
 
 jobs:      
   deploy:
-    if: startsWith(github.event.issue.title, '[Cre]') != 'true'
+    if: startsWith(github.event.issue.title, '[Create]') != 'true'
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     environment: synapseqa
     steps:
-
       - name: Issue Forms Body Parser
         id: parse
         uses: zentered/issue-forms-body-parser@v1.2.1
@@ -21,7 +22,12 @@ jobs:
       - run: |
           echo -e ${{ toJSON(steps.parse.outputs.data) }}
 
-      - uses: 
+      - name: Close Issue after using its data
+        uses: roots/issue-closer@v1.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-close-message: "@${issue.user.login} this issue was automatically closed after creating the resource"
+
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
