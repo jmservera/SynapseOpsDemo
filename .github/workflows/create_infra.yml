@@ -20,6 +20,7 @@ jobs:
           echo ${{ steps.parse.outputs.data }}
           echo ${{ toJSON(steps.parse.outputs.data) }}
           echo ${{ steps.parse.outputs.data['resource-name'] }}
+          echo ${{ Object.keys(steps.parse.outputs.data) }}
           exit 1
 
       - uses: azure/login@v1
