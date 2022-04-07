@@ -35,6 +35,7 @@ jobs:
 
   close-on-success:
     needs: deploy
+    runs-on: ubuntu-latest
     if: ${{ success() }}
     permissions:
       issues: write
@@ -46,6 +47,7 @@ jobs:
 
   comment-on-failure:
     needs: deploy
+    runs-on: ubuntu-latest
     if: ${{ failure() }}
     permissions:
       issues: write
