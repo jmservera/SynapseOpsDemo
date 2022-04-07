@@ -23,5 +23,5 @@ body:
       options:
         - Demo data
         - Clean
-      validations:
-          required: true
+    validations:
+        required: true
