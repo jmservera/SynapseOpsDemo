@@ -23,7 +23,7 @@ jobs:
 
       - name: Issue Forms Body Parser
         id: parse
-        uses: zentered/issue-forms-body-parser@v1.2.0
+        uses: zentered/issue-forms-body-parser@v1.2.1
         
       - run: |
           echo -e ${{ toJSON(steps.parse.outputs.data) }}
