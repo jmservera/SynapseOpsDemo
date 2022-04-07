@@ -17,7 +17,9 @@ jobs:
         uses: zentered/issue-forms-body-parser@v1.2.1
         
       - run: |
-          echo -e ${{ toJSON(steps.parse.outputs.data) }}
+          echo ${{ steps.parse.outputs.data }}
+          echo ${{ toJSON(steps.parse.outputs.data) }}
+          echo ${{ steps.parse.outputs.data[0].text }}
 
       - uses: azure/login@v1
         with:
@@ -31,7 +33,7 @@ jobs:
         with:
           resourceGroupName: synapseeus
           template: ./template/template.json
-          parameters: name=${{ toJSON(steps.parse.outputs.data)[0].text }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
+          parameters: name=${{ steps.parse.outputs.data[0].text }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
   close-on-success:
     needs: deploy
@@ -55,7 +57,6 @@ jobs:
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
-          issue-number: ${{ github.event.issue.number }}
+          issue-number:  ${{ github.event.issue.number }}
           body: |
-            Run: ${{ github.workflow }}-${{ github.ref }}
-            ${{ join(needs.deploy.steps.template.outputs.*, '\n') }}
+            :warning: Run :  ${{ server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} failed.
