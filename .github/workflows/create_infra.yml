@@ -6,14 +6,9 @@ on:
   issues:
     types: [ opened ]
 
-jobs:
-  check: 
-    runs-on: ubuntu-latest
-    steps:    
-      - if: startsWith(github.event.issue.title, '[Cre]') != 'true'
-        run: echo "::error title=Issue title does not start with [Create]::Incorrect issue"
-      - uses: actions/checkout@v3
-  build:
+jobs:      
+  deploy:
+    if: startsWith(github.event.issue.title, '[Cre]') != 'true'
     needs: check
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +23,9 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
+
+      - uses: actions/checkout@v3
+
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
