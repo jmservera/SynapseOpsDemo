@@ -14,16 +14,12 @@ jobs:
     steps:
       - name: Issue Forms Body Parser
         id: parse
-        uses: zentered/issue-forms-body-parser@v1.2.0
+        uses: zentered/issue-forms-body-parser@v1.2.1
         
       - run: |
           echo ${{ steps.parse.outputs.data }}
           echo ${{ toJSON(steps.parse.outputs.data) }}
-          echo ${{ steps.parse.outputs.data[0] }}
-          echo ${{ steps.parse.outputs.data[0][0] }}
-          echo ${{ steps.parse.outputs.data[0][1] }}
-          echo ${{ steps.parse.outputs.data[0][0].text }}
-          echo ${{ steps.parse.outputs.data[0][1].text }}
+          echo ${{ steps.parse.outputs.data['resource-name'] }}
           exit 1
 
       - uses: azure/login@v1
