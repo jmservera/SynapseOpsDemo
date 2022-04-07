@@ -17,15 +17,9 @@ jobs:
         uses: zentered/issue-forms-body-parser@v1.2.1
         
       - run: |
-          echo ${{ toJSON(steps.parse.outputs.data[0]) }}
-          echo ${{ toJSON(steps.parse.outputs.data) }} > data.json          
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: my-artifact
-          path: data.json
-
-      - run: exit 1
+          echo ${{ fromJSON(toJSON(steps.parse.outputs.data)) }}
+          echo ${{ fromJSON(toJSON(steps.parse.outputs.data))[0] }}
+          exit 1          
 
       - uses: azure/login@v1
         with:
