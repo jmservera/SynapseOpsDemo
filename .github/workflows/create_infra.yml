@@ -59,4 +59,4 @@ jobs:
         with:
           issue-number:  ${{ github.event.issue.number }}
           body: |
-            :warning: Run :  ${{ server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} failed.
+            :warning: Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} failed.
