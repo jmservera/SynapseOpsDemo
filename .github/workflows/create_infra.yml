@@ -57,4 +57,5 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-            ${{ join(needs.deploy.outputs.*, '\n') }}
+            Run: ${{ github.workflow }}-${{ github.ref }}
+            ${{ join(needs.deploy.steps.template.outputs.*, '\n') }}
