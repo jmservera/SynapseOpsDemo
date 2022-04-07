@@ -31,7 +31,7 @@ jobs:
         with:
           resourceGroupName: synapseeus
           template: ./template/template.json
-          parameters: name=mysynapse defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
+          parameters: name=${{ toJSON(steps.parse.outputs.data)[0].text }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
   close-on-success:
     needs: deploy
@@ -50,7 +50,7 @@ jobs:
     permissions:
       issues: write
     steps:
-     - name: Create comment
+      - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.issue.number }}
