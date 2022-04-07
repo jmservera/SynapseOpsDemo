@@ -20,9 +20,10 @@ jobs:
           echo ${{ steps.parse.outputs.data }}
           echo ${{ toJSON(steps.parse.outputs.data) }}
           echo ${{ steps.parse.outputs.data[0] }}
-          echo ${{ steps.parse.outputs.data[0][2] }}
-          echo ${{ steps.parse.outputs.data[0][5] }}
-          echo ${{ steps.parse.outputs.data[0][8] }}
+          echo ${{ steps.parse.outputs.data[0][0] }}
+          echo ${{ steps.parse.outputs.data[0][1] }}
+          echo ${{ steps.parse.outputs.data[0][0].text }}
+          echo ${{ steps.parse.outputs.data[0][1].text }}
           exit 1
 
       - uses: azure/login@v1
