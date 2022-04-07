@@ -8,8 +8,7 @@ on:
 
 jobs:      
   deploy:
-    if: startsWith(github.event.issue.title, '[Create]') != 'true'
-    needs: check
+    if: ${{ startsWith(github.event.issue.title, '[Create]') != 'true' }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
