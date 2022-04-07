@@ -15,6 +15,14 @@ body:
       placeholder: ex. mysynapse
     validations:
       required: true
+  - type: input
+    id: resource-group
+    attributes:
+      label: Resource group
+      description: What resource group should the Synapse be created in
+      placeholder: ex. synapseeus
+    validations:
+      required: true
   - type: dropdown
     id: demo-data
     attributes:
