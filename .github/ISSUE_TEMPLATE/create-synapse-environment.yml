@@ -15,11 +15,13 @@ body:
       placeholder: ex. mysynapse
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     id: demo-data
     attributes:
       label: Demo data deploy
-      description: Check this box if you want some demo data deployed into your environment
+      description: Choose what kind of environment you want deployed to your resource group
       options:
-        - label: Demo data
+        - Demo data
+        - Clean
+      validations:
           required: true
