@@ -19,7 +19,9 @@ jobs:
       - run: |
           echo ${{ steps.parse.outputs.data }}
           echo ${{ toJSON(steps.parse.outputs.data) }}
+          echo ${{ steps.parse.outputs.data[0] }}
           echo ${{ steps.parse.outputs.data[0].text }}
+          exit 1
 
       - uses: azure/login@v1
         with:
