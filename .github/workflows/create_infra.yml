@@ -32,6 +32,7 @@ jobs:
           template: ./template/template.json
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
+      - run: echo -e "${{ join(steps.template.outputs.*,'\n') }}"
   close-on-success:
     needs: deploy
     runs-on: ubuntu-latest
@@ -44,7 +45,7 @@ jobs:
         with:
           issue-number:  ${{ github.event.issue.number }}
           body: |
-            az synapse workspace show -n ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
+            az synapse workspace show -n ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
             Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
       - name: Close Issue after using its data
         uses: peter-evans/close-issue@v2
