@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: synapseqa
     steps:
+      - uses: actions/checkout@v3
+
       - name: GitHub Issue Parser
         id: parse
         uses: stefanbuck/github-issue-parser@v2.0.0
@@ -26,8 +28,6 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - uses: actions/checkout@v3
 
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
