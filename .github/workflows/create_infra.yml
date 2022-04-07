@@ -10,8 +10,6 @@ jobs:
   deploy:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     environment: synapseqa
     steps:
       - name: Issue Forms Body Parser
@@ -29,12 +27,32 @@ jobs:
 
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
+        id: template
         with:
           resourceGroupName: synapseeus
           template: ./template/template.json
           parameters: name=mysynapse defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
+  close-on-success:
+    needs: deploy
+    if: ${{ success() }}
+    permissions:
+      issues: write
+    steps:
       - name: Close Issue after using its data
         uses: peter-evans/close-issue@v2
         with:
           comment: "@${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource"
+
+  comment-on-failure:
+    needs: deploy
+    if: ${{ failure() }}
+    permissions:
+      issues: write
+    steps:
+     - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+          ${{ join(jobs.deploy.steps.template.outputs.*, '\n') }}
