@@ -4,7 +4,7 @@ name: Create Infra
 
 on:
   issues:
-    types: [ opened, modified ]
+    types: [ opened, update ]
 
 jobs:      
   deploy:
