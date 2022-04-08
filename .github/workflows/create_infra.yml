@@ -21,7 +21,12 @@ jobs:
           issue-number:  ${{ github.event.issue.number }}
           body: |
             **Starting deployment**
-            Follow the run trhough this link:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} 
+            Follow the run through this link:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} 
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - uses: actions/checkout@v3
 
       - name: GitHub Issue Parser
@@ -30,10 +35,6 @@ jobs:
         with:
           template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml
           
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         id: template
