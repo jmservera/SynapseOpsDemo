@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  workflow_dispatch:
+
+jobs:      
+  test1:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: "${{ steps.test1.outputs.test }}"
+    steps:
+      - name: Create comment for start
+        id: test1
+        run: echo "::set-output name=test::test"
+  test2:
+    needs: test1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ needs.test1.outputs.output1 }}"

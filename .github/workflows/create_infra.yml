@@ -43,7 +43,7 @@ jobs:
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
       - id: template-outputs
-        run: echo  "::set-output name=link::${{ steps.template.outputs.workspaceLink }}"
+        run: echo  "::set-output name=link::test ${{ steps.template.outputs.workspaceLink }}"
 
   close-on-success:
     needs: deploy
