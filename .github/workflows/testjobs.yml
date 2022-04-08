@@ -8,12 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       output1: "${{ steps.test1.outputs.test }}"
+      output2: "${{ steps.test2.outputs.test }}"
     steps:
-      - name: Create comment for start
-        id: test1
+      - id: test1
         run: echo "::set-output name=test::test"
+      - id: test2
+        run: echo "::set-output name=test::test 2 ${{ steps.test1.outputs.test }}"
   test2:
     needs: test1
     runs-on: ubuntu-latest
     steps:
-      - run: echo "${{ needs.test1.outputs.output1 }}"
+      - run: echo -e "${{ needs.test1.outputs.output1 }}\n${{ needs.test1.outputs.output1 }}"
