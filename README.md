@@ -17,4 +17,4 @@ If you want to try this, you can fork this repo and create an environment with t
 | OBJECTID | The ID for the user or group in AAD that will have permissions for the Synapse Workspace
 | SQL_SERVER | The SQL password you will use to get access to the Synapse Workspace using SSMS or any other similar tool, the default user is `sqladminuser`
 
-Then go to create a [new issue](../issues/new?assignees=&labels=resource+creation&template=create-synapse-environment.yml&title=%5BCreate%5D%3A+) and fill the form.
+Then go to create a [new issue](../../issues/new?assignees=&labels=resource+creation&template=create-synapse-environment.yml&title=%5BCreate%5D%3A+) and fill the form.
