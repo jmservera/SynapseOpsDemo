@@ -11,7 +11,8 @@ jobs:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
     outputs:
-      workspace: ${{ steps.template.outputs.workspaceLink }}
+      workspace: "${{ steps.template.outputs.workspaceLink }}"
+      link: "${{ steps.template-outputs.outputs.link }}"
     environment: synapseqa
     steps:
       - uses: actions/checkout@v3
@@ -34,7 +35,9 @@ jobs:
           template: ./template/template.json
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
-      - run: echo  "${{ steps.template.outputs.workspaceLink }}"
+      - id: template-outputs
+        run: echo  "::set-output name=link::${{ steps.template.outputs.workspaceLink }}"
+
   close-on-success:
     needs: deploy
     runs-on: ubuntu-latest
@@ -42,18 +45,15 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Create comment
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number:  ${{ github.event.issue.number }}
   # az synapse workspace show -n ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
-          body: |
-            ${{ needs.deploy.outputs.workspace }}
-            Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
-      - name: Close Issue after using its data
+      - name: Close Issue after creating Synapse Environment
         uses: peter-evans/close-issue@v2
         with:
-          comment: "@${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource"
+          comment: |
+            @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource
+            Data: ${{ needs.deploy.outputs.workspace }}
+            Link: ${{ needs.deploy.outputs.link }}
+            Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
 
   comment-on-failure:
     needs: deploy
