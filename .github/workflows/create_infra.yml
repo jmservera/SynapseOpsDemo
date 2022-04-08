@@ -39,8 +39,8 @@ jobs:
         id: template
         with:
           resourceGroupName: ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}
-          template: ./template/template.json
-          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
+          template: ./template/template.bicep
+          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }}
 
       - id: template-outputs
         run: |
