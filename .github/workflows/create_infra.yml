@@ -49,6 +49,14 @@ jobs:
           echo  "::set-output name=link::test ${{ steps.template.outputs.workspaceLink }}"
           echo  "::set-output name=test::testmemf"
 
+      - name: Comment output
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number:  ${{ github.event.issue.number }}
+          body: |
+            **Starting deployment**
+            Link: ${{ steps.template.outputs.workspaceLink }}
+
   close-on-success:
     needs: deploy
     runs-on: ubuntu-latest
