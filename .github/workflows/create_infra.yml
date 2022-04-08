@@ -13,6 +13,7 @@ jobs:
     outputs:
       workspace: "${{ steps.template.outputs.workspaceLink }}"
       link: "${{ steps.template-outputs.outputs.link }}"
+      test: "${{ steps.template-outputs.outputs.test }}"
     environment: synapseqa
     steps:
       - name: Create comment for start
@@ -44,7 +45,9 @@ jobs:
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
       - id: template-outputs
-        run: echo  "::set-output name=link::test ${{ steps.template.outputs.workspaceLink }}"
+        run: |
+          echo  "::set-output name=link::test ${{ steps.template.outputs.workspaceLink }}"
+          echo  "::set-output name=test::testmemf"
 
   close-on-success:
     needs: deploy
@@ -59,6 +62,7 @@ jobs:
         with:
           comment: |
             @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource
+            Test: ${{ needs.deploy.outputs.test }}
             Data: ${{ needs.deploy.outputs.workspace }}
             Link: ${{ needs.deploy.outputs.link }}
             Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
