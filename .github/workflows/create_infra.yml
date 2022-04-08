@@ -8,6 +8,8 @@ jobs:
   deploy:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     outputs:
       workspace: "${{ steps.template.outputs.workspaceLink }}"
       link: "${{ steps.template-outputs.outputs.link }}"
@@ -39,6 +41,7 @@ jobs:
         id: template
         with:
           resourceGroupName: ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}
+          deploymentName: ghdeploy_${{ github.event.issue.number }}_${{ github.run_id }}
           template: ./template/template.bicep
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }}
 
@@ -52,13 +55,12 @@ jobs:
         with:
           issue-number:  ${{ github.event.issue.number }}
           body: |
-            **Starting deployment**
+            **Deployment finished. Your workspace has been created**
             Link: ${{ steps.template.outputs.workspaceLink }}
 
   close-on-success:
     needs: deploy
     runs-on: ubuntu-latest
-    if: ${{ success() }}
     permissions:
       issues: write
     steps:
