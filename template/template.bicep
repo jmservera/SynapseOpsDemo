@@ -47,7 +47,7 @@ param minimumTlsVersion string = 'TLS1_2'
 
 var uniqueName = substring('${name}${uniqueString(resourceGroup().id)}',0,19)
 var storageName = '${uniqueName}stg'
-var filesystemName = '${uniqueName}fs'
+var filesystemName = '${name}fs'
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
