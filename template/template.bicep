@@ -118,7 +118,9 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
 
 resource synapse_allowAzure 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = {
   parent: synapse
-  name: 'AllowAllAzureIps'
+  // DO NOT CHANGE NAME OR IP ADDRESSES
+  // If you want to add this rule, the name should be explicitely this one
+  name: 'AllowAllWindowsAzureIps' 
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
