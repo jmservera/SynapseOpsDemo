@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Create Infra
 
 on:
@@ -64,7 +62,6 @@ jobs:
     permissions:
       issues: write
     steps:
-  # az synapse workspace show -n ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
       - name: Close Issue after creating Synapse Environment
         uses: peter-evans/close-issue@v2
         with:
