@@ -10,6 +10,8 @@ jobs:
   deploy:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
+    outputs:
+      workspace: ${{ steps.template.outputs.workspaceLink }}
     environment: synapseqa
     steps:
       - uses: actions/checkout@v3
@@ -32,7 +34,7 @@ jobs:
           template: ./template/template.json
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} defaultDataLakeStorageAccountName=jmmysynapsestg defaultDataLakeStorageFilesystemName=jmmysynapsefs sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }}
 
-      - run: echo -e "${{ join(steps.template.outputs.*,'\n') }}"
+      - run: echo  "${{ steps.template.outputs.workspaceLink }}"
   close-on-success:
     needs: deploy
     runs-on: ubuntu-latest
@@ -44,8 +46,9 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number:  ${{ github.event.issue.number }}
+  # az synapse workspace show -n ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
           body: |
-            az synapse workspace show -n ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-name }} -g ${{ fromJSON(needs.deploy.steps.issue-parser.outputs.jsonString).resource-group }} synapseeus --query ['connectivityEndpoints'][0].web -o json
+            ${{ needs.deploy.outputs.workspace }}
             Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
       - name: Close Issue after using its data
         uses: peter-evans/close-issue@v2
