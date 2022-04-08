@@ -52,7 +52,7 @@ var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
 
-var defaultDataLakeStorageAccountUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
+var datalakeUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
 var storageKind = 'StorageV2'
 
 // *********** Resources ***********
@@ -101,7 +101,7 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   }
   properties: {
     defaultDataLakeStorage: {
-      accountUrl: defaultDataLakeStorageAccountUrl
+      accountUrl: datalakeUrl
       filesystem: filesystemName
     }
     managedVirtualNetwork: managedVirtualNetwork
@@ -116,6 +116,15 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
+resource synapse_allowAzure 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = {
+  parent: synapse
+  name: 'AllowAllAzureIps'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
+  }
+}
+
 resource synapse_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {
   parent: synapse
   name: 'allowAll'
@@ -125,6 +134,7 @@ resource synapse_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01
   }
 }
 
+// Role Assignments
 resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: storageRoleUniqueId
   scope: datalake
@@ -145,4 +155,6 @@ resource userroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
+
+// ******** Output ********
 output workspaceLink string = reference('Microsoft.Synapse/workspaces/${name}', '2021-06-01', 'Full').properties.connectivityEndpoints['web']
