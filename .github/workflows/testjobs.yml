@@ -18,4 +18,4 @@ jobs:
     needs: test1
     runs-on: ubuntu-latest
     steps:
-      - run: echo -e "${{ needs.test1.outputs.output1 }}\n${{ needs.test1.outputs.output1 }}"
+      - run: echo -e "${{ needs.test1.outputs.output1 }}\n${{ needs.test1.outputs.output2 }}"
