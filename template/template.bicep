@@ -1,10 +1,16 @@
+// ************** Parameters *******************
+
 param name string
 
 param sqlAdministratorLogin string = 'sqladminuser'
-@secure()
-param sqlAdministratorLoginPassword string = ''
 
+@secure()
+param sqlAdministratorLoginPassword string
+
+@description('Object ID for the Active Directory user or group that will be granted access to this resource')
 param userObjectId string
+
+@description('When true adds a firewall rule to open access to any IP address, use only for testing')
 param allowAllConnections bool = true
 
 @allowed([
@@ -19,6 +25,7 @@ param managedVirtualNetwork string = 'default'
 ])
 param publicNetworkAccess string = 'Enabled'
 
+@description('Use this field if you need to have a specific Resource Group name for the automatically created RG where all the resources are stored.')
 param managedResourceGroupName string = ''
 
 param location string = resourceGroup().location
@@ -45,13 +52,14 @@ param storageAccountType string = 'Standard_LRS'
 ])
 param minimumTlsVersion string = 'TLS1_2'
 
+// ************** Variables *******************
+
 var uniqueName = substring('${name}${uniqueString(resourceGroup().id)}',0,19)
 var storageName = '${uniqueName}stg'
 var filesystemName = '${name}fs'
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
-
 var datalakeUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
 var storageKind = 'StorageV2'
 
@@ -147,6 +155,8 @@ resource synapse_grant 'Microsoft.Synapse/workspaces/managedIdentitySqlControlSe
     }
   }
 }
+
+// TODO Add workspace role assignments
 
 // Role Assignments
 resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {

@@ -4,7 +4,7 @@ on:
   issues:
     types: [ opened, edited ]
 
-jobs:      
+jobs:
   deploy:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
