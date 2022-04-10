@@ -136,6 +136,18 @@ resource synapse_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01
   }
 }
 
+//example https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.synapse/synapse-poc/azuredeploy.json
+
+resource synapse_grant 'Microsoft.Synapse/workspaces/managedIdentitySqlControlSettings@2021-06-01' = {
+  parent: synapse
+  name: 'default'
+  properties: {
+    grantSqlControlToManagedIdentity: {
+      desiredState: 'Enabled'
+    }
+  }
+}
+
 // Role Assignments
 resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: storageRoleUniqueId
