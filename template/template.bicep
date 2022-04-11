@@ -253,7 +253,7 @@ resource synapseAdminRoleAssignToUser 'Microsoft.Authorization/roleAssignments@2
   properties:{
     principalId: userObjectId
     principalType: 'User'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ownerRoleID)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', synapseAdminID)
   }
 }
 
