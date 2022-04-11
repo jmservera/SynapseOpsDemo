@@ -111,12 +111,14 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
     defaultDataLakeStorage: {
       accountUrl: datalakeUrl
       filesystem: filesystemName
+      createManagedPrivateEndpoint: true
     }
     managedVirtualNetwork: managedVirtualNetwork
     managedResourceGroupName: managedResourceGroupName
     publicNetworkAccess: publicNetworkAccess
     sqlAdministratorLogin: sqlAdministratorLogin
     sqlAdministratorLoginPassword: sqlAdministratorLoginPassword
+    azureADOnlyAuthentication: false
   }
   dependsOn: [
     datalake
