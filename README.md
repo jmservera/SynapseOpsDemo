@@ -23,11 +23,11 @@ To create an Azure Synapse workspace, a user must have Azure Contributor role an
 
 1. First you need to create a service principal in Azure, copy the credentials from the Azure portal and paste them in the `AZURE_CREDENTIALS` environment variable. It is better if you chop the new line characters (`\n`) from the json.
 
-```bash az ad sp create-for-rbac --name myApp --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/exampleRG --sdk-auth | tr -d '\n'
+```bash az ad sp create-for-rbac --name myApp --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/exampleRG --sdk-auth | tr -d '\n'```
 
 2. Then you need to add permissions to the service principal.
 
-```bash az role assignment create --assignee {object-id} --role 'User Access Administrator' --scope /subscriptions/{subscription-id}
+```bash az role assignment create --assignee {object-id} --role 'User Access Administrator' --scope /subscriptions/{subscription-id}```
 
 
 Then go to create a [new issue](../../issues/new?assignees=&labels=resource+creation&template=create-synapse-environment.yml&title=%5BCreate%5D%3A+) and fill the form.
