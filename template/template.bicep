@@ -80,12 +80,12 @@ param minimumTlsVersion string = 'TLS1_2'
 var uniqueName = substring('${name}${uniqueString(resourceGroup().id)}',0,19)
 var storageName = '${uniqueName}stg'
 var filesystemName = '${name}fs'
-var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+var contributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var ownerRoleID = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
-var synapseRoleUserUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name))
-//var datalakeUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
+var synapseRoleUserUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name), userObjectId)
+var synapseRoleIdentityUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name))
 var storageKind = 'StorageV2'
 
 // *********** Resources ***********
@@ -210,7 +210,7 @@ resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-p
   properties:{
     principalId: synapse.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleID)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleID)
   }
 }
 
@@ -220,12 +220,12 @@ resource userroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   properties:{
     principalId: userObjectId
     principalType: 'User'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleID)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleID)
   }
 }
 
 resource synapseRoleAssignToSynapse 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: synapseRoleUserUniqueId
+  name: synapseRoleIdentityUniqueId
   scope: synapse
   properties:{
     principalId: synapse.identity.principalId
@@ -234,6 +234,15 @@ resource synapseRoleAssignToSynapse 'Microsoft.Authorization/roleAssignments@202
   }
 }
 
+resource synapseRoleAssignToUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: synapseRoleUserUniqueId
+  scope: synapse
+  properties:{
+    principalId: userObjectId
+    principalType: 'User'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ownerRoleID)
+  }
+}
 
 // ******** Output ********
 output workspaceLink string = reference('Microsoft.Synapse/workspaces/${name}', '2021-06-01', 'Full').properties.connectivityEndpoints['web']
