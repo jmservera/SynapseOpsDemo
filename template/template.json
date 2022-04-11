@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1318.3566",
-      "templateHash": "6264729489070899864"
+      "version": "0.5.6.12127",
+      "templateHash": "16449830303460198707"
     }
   },
   "parameters": {
@@ -18,6 +18,12 @@
     },
     "sqlAdministratorLoginPassword": {
       "type": "secureString"
+    },
+    "userLoginName": {
+      "type": "string",
+      "metadata": {
+        "description": "Login for the Active Directory user or group that will be granted access to this resource"
+      }
     },
     "userObjectId": {
       "type": "string",
@@ -54,6 +60,36 @@
       "metadata": {
         "description": "Use this field if you need to have a specific Resource Group name for the automatically created RG where all the resources are stored."
       }
+    },
+    "createDedicatedPool": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When enabled it will create a dedicated SQL Pool"
+      }
+    },
+    "sqlPoolCollation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+      "metadata": {
+        "description": "SQL Pool collation"
+      }
+    },
+    "sqlPoolSku": {
+      "type": "string",
+      "defaultValue": "DW100c",
+      "allowedValues": [
+        "DW100c",
+        "DW200c",
+        "DW300c",
+        "DW400c",
+        "DW500c",
+        "DW1000c",
+        "DW1500c",
+        "DW2000c",
+        "DW2500c",
+        "DW3000c"
+      ]
     },
     "location": {
       "type": "string",
@@ -160,6 +196,37 @@
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[0], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[1], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[2])]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Synapse/workspaces/administrators",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'activeDirectory')]",
+      "properties": {
+        "administratorType": "ActiveDirectory",
+        "login": "[parameters('userLoginName')]",
+        "sid": "[parameters('userObjectId')]",
+        "tenantId": "[subscription().tenantId]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('createDedicatedPool')]",
+      "type": "Microsoft.Synapse/workspaces/sqlPools",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}/{1}', parameters('name'), format('{0}sql', parameters('name')))]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('sqlPoolSku')]"
+      },
+      "properties": {
+        "collation": "[parameters('sqlPoolCollation')]",
+        "createMode": "Default"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
       ]
     },
     {
