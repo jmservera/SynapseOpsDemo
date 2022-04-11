@@ -83,7 +83,7 @@ var filesystemName = '${name}fs'
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
-var datalakeUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
+//var datalakeUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
 var storageKind = 'StorageV2'
 
 // *********** Resources ***********
@@ -104,12 +104,6 @@ resource datalake 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   kind: storageKind
 }
 
-resource blob 'Microsoft.Storage/storageAccounts/blobServices@2021-02-01' = {
-  name:  '${storageName}/default'
-  dependsOn:[
-    datalake
-  ]
-}
 
 resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
   name: '${storageName}/default/${filesystemName}'
@@ -117,7 +111,7 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
     publicAccess: 'None'
   }
   dependsOn: [
-    blob
+    datalake
   ]
 }
 
@@ -132,7 +126,7 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   }
   properties: {
     defaultDataLakeStorage: {
-      accountUrl: datalakeUrl
+      accountUrl: reference(storageName).primaryEndpoints.dfs
       filesystem: filesystemName
       createManagedPrivateEndpoint: true
       resourceId: datalake.id

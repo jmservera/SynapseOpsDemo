@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "16449830303460198707"
+      "templateHash": "10195493103227391486"
     }
   },
   "parameters": {
@@ -132,7 +132,6 @@
     "storageBlobDataContributorRoleID": "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
     "storageRoleUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), variables('storageName'))]",
     "storageRoleUserUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), parameters('userObjectId'))]",
-    "datalakeUrl": "[format('https://{0}.dfs.{1}', variables('storageName'), environment().suffixes.storage)]",
     "storageKind": "StorageV2"
   },
   "resources": [
@@ -153,14 +152,6 @@
       "kind": "[variables('storageKind')]"
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/blobServices",
-      "apiVersion": "2021-02-01",
-      "name": "[format('{0}/default', variables('storageName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
-      ]
-    },
-    {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2021-01-01",
       "name": "[format('{0}/default/{1}', variables('storageName'), variables('filesystemName'))]",
@@ -168,7 +159,7 @@
         "publicAccess": "None"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', split(format('{0}/default', variables('storageName')), '/')[0], split(format('{0}/default', variables('storageName')), '/')[1])]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
       ]
     },
     {
@@ -181,7 +172,7 @@
       },
       "properties": {
         "defaultDataLakeStorage": {
-          "accountUrl": "[variables('datalakeUrl')]",
+          "accountUrl": "[reference(variables('storageName')).primaryEndpoints.dfs]",
           "filesystem": "[variables('filesystemName')]",
           "createManagedPrivateEndpoint": true,
           "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
