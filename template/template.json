@@ -1,0 +1,239 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1318.3566",
+      "templateHash": "6264729489070899864"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "sqlAdministratorLogin": {
+      "type": "string",
+      "defaultValue": "sqladminuser"
+    },
+    "sqlAdministratorLoginPassword": {
+      "type": "secureString"
+    },
+    "userObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Object ID for the Active Directory user or group that will be granted access to this resource"
+      }
+    },
+    "allowAllConnections": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "When true adds a firewall rule to open access to any IP address, use only for testing"
+      }
+    },
+    "managedVirtualNetwork": {
+      "type": "string",
+      "defaultValue": "default",
+      "allowedValues": [
+        "default",
+        ""
+      ]
+    },
+    "publicNetworkAccess": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ]
+    },
+    "managedResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Use this field if you need to have a specific Resource Group name for the automatically created RG where all the resources are stored."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Premium_LRS",
+        "Premium_ZRS",
+        "Standard_GRS",
+        "Standard_GZRS",
+        "Standard_LRS",
+        "Standard_RAGRS",
+        "Standard_RAGZRS",
+        "Standard_ZRS"
+      ],
+      "metadata": {
+        "description": "The SKU name. Required for account creation; optional for update. Note that in older versions, SKU name was called accountType."
+      }
+    },
+    "minimumTlsVersion": {
+      "type": "string",
+      "defaultValue": "TLS1_2",
+      "allowedValues": [
+        "TLS1_0",
+        "TLS1_1",
+        "TLS1_2"
+      ],
+      "metadata": {
+        "description": "Set the minimum TLS version to be permitted on requests to storage. The default interpretation is TLS 1.2 for this property."
+      }
+    }
+  },
+  "variables": {
+    "uniqueName": "[substring(format('{0}{1}', parameters('name'), uniqueString(resourceGroup().id)), 0, 19)]",
+    "storageName": "[format('{0}stg', variables('uniqueName'))]",
+    "filesystemName": "[format('{0}fs', parameters('name'))]",
+    "storageBlobDataContributorRoleID": "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
+    "storageRoleUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), variables('storageName'))]",
+    "storageRoleUserUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), parameters('userObjectId'))]",
+    "datalakeUrl": "[format('https://{0}.dfs.{1}', variables('storageName'), environment().suffixes.storage)]",
+    "storageKind": "StorageV2"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "[variables('storageName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accessTier": "Hot",
+        "supportsHttpsTrafficOnly": true,
+        "isHnsEnabled": true,
+        "minimumTlsVersion": "[parameters('minimumTlsVersion')]"
+      },
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "[variables('storageKind')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/default', variables('storageName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}/default/{1}', variables('storageName'), variables('filesystemName'))]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', split(format('{0}/default', variables('storageName')), '/')[0], split(format('{0}/default', variables('storageName')), '/')[1])]"
+      ]
+    },
+    {
+      "type": "Microsoft.Synapse/workspaces",
+      "apiVersion": "2021-06-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "defaultDataLakeStorage": {
+          "accountUrl": "[variables('datalakeUrl')]",
+          "filesystem": "[variables('filesystemName')]",
+          "createManagedPrivateEndpoint": true,
+          "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+        },
+        "managedVirtualNetwork": "[parameters('managedVirtualNetwork')]",
+        "managedResourceGroupName": "[parameters('managedResourceGroupName')]",
+        "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+        "sqlAdministratorLogin": "[parameters('sqlAdministratorLogin')]",
+        "sqlAdministratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
+        "azureADOnlyAuthentication": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[0], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[1], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[2])]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Synapse/workspaces/firewallRules",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'AllowAllWindowsAzureIps')]",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('allowAllConnections')]",
+      "type": "Microsoft.Synapse/workspaces/firewallRules",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'allowAll')]",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "255.255.255.255"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Synapse/workspaces/managedIdentitySqlControlSettings",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'default')]",
+      "properties": {
+        "grantSqlControlToManagedIdentity": {
+          "desiredState": "Enabled"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', variables('storageName'))]",
+      "name": "[variables('storageRoleUniqueId')]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('name')), '2021-06-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('storageBlobDataContributorRoleID'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', variables('storageName'))]",
+      "name": "[variables('storageRoleUserUniqueId')]",
+      "properties": {
+        "principalId": "[parameters('userObjectId')]",
+        "principalType": "User",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('storageBlobDataContributorRoleID'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "workspaceLink": {
+      "type": "string",
+      "value": "[reference(format('Microsoft.Synapse/workspaces/{0}', parameters('name')), '2021-06-01', 'Full').properties.connectivityEndpoints.web]"
+    }
+  }
+}

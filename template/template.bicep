@@ -28,8 +28,25 @@ param publicNetworkAccess string = 'Enabled'
 @description('Use this field if you need to have a specific Resource Group name for the automatically created RG where all the resources are stored.')
 param managedResourceGroupName string = ''
 
+@description('When enabled it will create a dedicated SQL Pool')
+param createDedicatedPool bool = false
+
 @description('SQL Pool collation')
-param collation string = 'SQL_Latin1_General_CP1_CI_AS'
+param sqlPoolCollation string = 'SQL_Latin1_General_CP1_CI_AS'
+
+@allowed([
+  'DW100c'
+  'DW200c'
+  'DW300c'
+  'DW400c'
+  'DW500c'
+  'DW1000c'
+  'DW1500c'
+  'DW2000c'
+  'DW2500c'
+  'DW3000c'
+])
+param sqlPoolSku string = 'DW100c'
 
 param location string = resourceGroup().location
 
@@ -129,15 +146,25 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
-resource sqlpool 'Microsoft.Synapse/workspaces/sqlPools@2021-03-01' = {
+resource synapseAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' = {
+  parent: synapse
+  name: 'activeDirectory'
+  properties: {
+    administratorType: 'ActiveDirectory'
+    sid: userObjectId
+    tenantId: subscription().tenantId
+  }
+}
+
+resource sqlpool 'Microsoft.Synapse/workspaces/sqlPools@2021-03-01' = if(createDedicatedPool) {
   name: '${name}sql'
   location: location
   parent: synapse
   sku:{
-    name: 'DW100c'
+    name: sqlPoolSku
   }
   properties:{
-    collation: collation
+    collation: sqlPoolCollation
     createMode: 'Default'
   }
 }
