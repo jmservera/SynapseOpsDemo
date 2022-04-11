@@ -112,6 +112,7 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
       accountUrl: datalakeUrl
       filesystem: filesystemName
       createManagedPrivateEndpoint: true
+      resourceId: datalake.id
     }
     managedVirtualNetwork: managedVirtualNetwork
     managedResourceGroupName: managedResourceGroupName
@@ -121,7 +122,6 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
     azureADOnlyAuthentication: false
   }
   dependsOn: [
-    datalake
     container
   ]
 }
