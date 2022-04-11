@@ -81,8 +81,10 @@ var uniqueName = substring('${name}${uniqueString(resourceGroup().id)}',0,19)
 var storageName = '${uniqueName}stg'
 var filesystemName = '${name}fs'
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+var ownerRoleID = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
+var synapseRoleUserUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name))
 //var datalakeUrl = 'https://${storageName}.dfs.${environment().suffixes.storage}'
 var storageKind = 'StorageV2'
 
@@ -219,6 +221,16 @@ resource userroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
     principalId: userObjectId
     principalType: 'User'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleID)
+  }
+}
+
+resource synapseRoleAssignToSynapse 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: synapseRoleUserUniqueId
+  scope: synapse
+  properties:{
+    principalId: synapse.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ownerRoleID)
   }
 }
 

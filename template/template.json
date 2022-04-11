@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "10195493103227391486"
+      "templateHash": "3166253933198338718"
     }
   },
   "parameters": {
@@ -130,8 +130,10 @@
     "storageName": "[format('{0}stg', variables('uniqueName'))]",
     "filesystemName": "[format('{0}fs', parameters('name'))]",
     "storageBlobDataContributorRoleID": "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
+    "ownerRoleID": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
     "storageRoleUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), variables('storageName'))]",
     "storageRoleUserUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), parameters('userObjectId'))]",
+    "synapseRoleUserUniqueId": "[guid(resourceId('Microsoft.Synapse/workspaces', parameters('name')))]",
     "storageKind": "StorageV2"
   },
   "resources": [
@@ -285,6 +287,20 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Synapse/workspaces/{0}', parameters('name'))]",
+      "name": "[variables('synapseRoleUserUniqueId')]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('name')), '2021-06-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('ownerRoleID'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
       ]
     }
   ],
