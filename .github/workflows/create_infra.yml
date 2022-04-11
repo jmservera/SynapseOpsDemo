@@ -44,7 +44,7 @@ jobs:
           template: ./template/template.bicep
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} userLoginName=${{ secrets.USER }}
 
-      - run: az synapse role assignment create --workspace-name $${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.USER }}
+      - run: az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.USER }}
 
       - id: template-outputs
         run: |
