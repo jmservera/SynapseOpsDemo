@@ -145,6 +145,17 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
+resource synapseSQLAdmin 'Microsoft.Synapse/workspaces/sqlAdministrators@2021-06-01' = {
+  parent: synapse
+  name: 'activeDirectory'
+  properties: {
+    administratorType: 'ActiveDirectory'
+    login: userLoginName
+    sid: userObjectId
+    tenantId: subscription().tenantId
+  }
+}
+
 resource synapseAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' = {
   parent: synapse
   name: 'activeDirectory'

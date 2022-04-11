@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "7672411573217589598"
+      "templateHash": "15078137858656639770"
     }
   },
   "parameters": {
@@ -190,6 +190,20 @@
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[0], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[1], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[2])]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Synapse/workspaces/sqlAdministrators",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'activeDirectory')]",
+      "properties": {
+        "administratorType": "ActiveDirectory",
+        "login": "[parameters('userLoginName')]",
+        "sid": "[parameters('userObjectId')]",
+        "tenantId": "[subscription().tenantId]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
       ]
     },
     {
