@@ -13,7 +13,7 @@ jobs:
     outputs:
       workspace: "${{ steps.template.outputs.workspaceLink }}"
       link: "${{ steps.template-outputs.outputs.link }}"
-      test: "${{ steps.template-outputs.outputs.test }}"
+      workspace-name: "${{ steps.template-outputs.outputs.wsname }}"
     environment: synapseqa
     steps:
       - name: Create comment for start
@@ -48,7 +48,7 @@ jobs:
       - id: template-outputs
         run: |
           echo  "::set-output name=link::test ${{ steps.template.outputs.workspaceLink }}"
-          echo  "::set-output name=test::testmemf"
+          echo  "::set-output name=wsname::${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}"
 
       - name: Comment output
         uses: peter-evans/create-or-update-comment@v2
@@ -61,9 +61,14 @@ jobs:
   close-on-success:
     needs: deploy
     runs-on: ubuntu-latest
+    environment: synapseqa
     permissions:
       issues: write
     steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - run: az synapse role assignment create --workspace-name ${{ needs.deploy.outputs.workspace-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.USER }}
       - name: Close Issue after creating Synapse Environment
         uses: peter-evans/close-issue@v2
         with:
