@@ -1,7 +1,6 @@
 # SynapseOpsDemo
 DataOps demo
 
-
 ## Create a Synapse Workspace from an issue
 
 This repo uses the new [GitHub Forms feature](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms) to provide a template for creating an issue, that will automatically create a Synapse workspace from the stored template in the repo.
@@ -31,3 +30,8 @@ To create an Azure Synapse workspace, a user must have Azure Contributor role an
 
 
 Then go to create a [new issue](../../issues/new?assignees=&labels=resource+creation&template=create-synapse-environment.yml&title=%5BCreate%5D%3A+) and fill the form.
+
+
+## Test the embedded template
+
+[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjmenterprisedemo%2FSynapseOpsDemo%2Fmain%2Ftemplate%2Ftemplate.json) [![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjmenterprisedemo%2FSynapseOpsDemo%2Fmain%2Ftemplate%2Ftemplate.json)
