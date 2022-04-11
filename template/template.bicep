@@ -28,6 +28,9 @@ param publicNetworkAccess string = 'Enabled'
 @description('Use this field if you need to have a specific Resource Group name for the automatically created RG where all the resources are stored.')
 param managedResourceGroupName string = ''
 
+@description('SQL Pool collation')
+param collation string = 'SQL_Latin1_General_CP1_CI_AS'
+
 param location string = resourceGroup().location
 
 
@@ -124,6 +127,19 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   dependsOn: [
     container
   ]
+}
+
+resource sqlpool 'Microsoft.Synapse/workspaces/sqlPools@2021-03-01' = {
+  name: '${name}sql'
+  location: location
+  parent: synapse
+  sku:{
+    name: 'DW100c'
+  }
+  properties:{
+    collation: collation
+    createMode: 'Default'
+  }
 }
 
 resource synapse_allowAzure 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = {
