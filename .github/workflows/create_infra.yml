@@ -13,7 +13,6 @@ jobs:
     outputs:
       workspace: "${{ steps.template.outputs.workspaceLink }}"
       link: "${{ steps.template-outputs.outputs.link }}"
-      workspace-name: "${{ steps.template-outputs.outputs.wsname }}"
     environment: synapseqa
     steps:
       - name: Create comment for start
@@ -45,10 +44,11 @@ jobs:
           template: ./template/template.bicep
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} userLoginName=${{ secrets.USER }}
 
+      - run: az synapse role assignment create --workspace-name $${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.USER }}
+
       - id: template-outputs
         run: |
-          echo  "::set-output name=link::test ${{ steps.template.outputs.workspaceLink }}"
-          echo  "::set-output name=wsname::${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}"
+          echo  "::set-output name=link::${{ steps.template.outputs.workspaceLink }}"
 
       - name: Comment output
         uses: peter-evans/create-or-update-comment@v2
@@ -68,13 +68,12 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - run: az synapse role assignment create --workspace-name ${{ needs.deploy.outputs.workspace-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.USER }}
+
       - name: Close Issue after creating Synapse Environment
         uses: peter-evans/close-issue@v2
         with:
           comment: |
             @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource
-            Test: ${{ needs.deploy.outputs.test }}
             Data: ${{ needs.deploy.outputs.workspace }}
             Link: ${{ needs.deploy.outputs.link }}
             Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
