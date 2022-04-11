@@ -43,7 +43,7 @@ jobs:
           resourceGroupName: ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}
           deploymentName: ghdeploy_${{ github.event.issue.number }}_${{ github.run_id }}
           template: ./template/template.bicep
-          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }}
+          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} userLoginName=${{ secrets.USER }}
 
       - id: template-outputs
         run: |

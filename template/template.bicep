@@ -7,6 +7,9 @@ param sqlAdministratorLogin string = 'sqladminuser'
 @secure()
 param sqlAdministratorLoginPassword string
 
+@description('Login for the Active Directory user or group that will be granted access to this resource')
+param userLoginName string
+
 @description('Object ID for the Active Directory user or group that will be granted access to this resource')
 param userObjectId string
 
@@ -151,6 +154,7 @@ resource synapseAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' =
   name: 'activeDirectory'
   properties: {
     administratorType: 'ActiveDirectory'
+    login: userLoginName
     sid: userObjectId
     tenantId: subscription().tenantId
   }
