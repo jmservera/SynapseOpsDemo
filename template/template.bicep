@@ -7,10 +7,10 @@ param sqlAdministratorLogin string = 'sqladminuser'
 @secure()
 param sqlAdministratorLoginPassword string
 
-@description('Login for the Active Directory user or group that will be granted access to this resource')
-param userLoginName string
+// @description('Login for the Active Directory user or group that will be granted access to this resource')
+// param userLoginName string
 
-@description('Object ID for the Active Directory user or group that will be granted access to this resource')
+@description('sid for the Active Directory user or group that will be granted access to this resource')
 param userObjectId string
 
 @description('When true adds a firewall rule to open access to any IP address, use only for testing')
@@ -82,12 +82,10 @@ var storageName = '${uniqueName}stg'
 var filesystemName = '${name}fs'
 var contributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var ownerRoleID = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-var synapseAdminID = '6e4bf58a-b8e1-4cc3-bbf9-d73143322b78'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
 var synapseRoleUserUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name), userObjectId)
 var synapseRoleIdentityUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name))
-var synapseRoleAdminIdentityUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name), synapseAdminID)
 var storageKind = 'StorageV2'
 
 // *********** Resources ***********
@@ -147,27 +145,27 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
-resource synapseSQLAdmin 'Microsoft.Synapse/workspaces/sqlAdministrators@2021-06-01' = {
-  parent: synapse
-  name: 'activeDirectory'
-  properties: {
-    administratorType: 'ActiveDirectory'
-    login: userLoginName
-    sid: userObjectId
-    tenantId: subscription().tenantId
-  }
-}
+// resource synapseSQLAdmin 'Microsoft.Synapse/workspaces/sqlAdministrators@2021-06-01' = {
+//   parent: synapse
+//   name: 'activeDirectory'
+//   properties: {
+//     administratorType: 'ActiveDirectory'
+//     login: userLoginName
+//     sid: userObjectId
+//     tenantId: subscription().tenantId
+//   }
+// }
 
-resource synapseAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' = {
-  parent: synapse
-  name: 'activeDirectory'
-  properties: {
-    administratorType: 'ActiveDirectory'
-    login: userLoginName
-    sid: userObjectId
-    tenantId: subscription().tenantId
-  }
-}
+// resource synapseAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' = {
+//   parent: synapse
+//   name: 'activeDirectory'
+//   properties: {
+//     administratorType: 'ActiveDirectory'
+//     login: userLoginName
+//     sid: userObjectId
+//     tenantId: subscription().tenantId
+//   }
+// }
 
 resource sqlpool 'Microsoft.Synapse/workspaces/sqlPools@2021-03-01' = if(createDedicatedPool) {
   name: '${name}sql'
@@ -246,17 +244,6 @@ resource synapseRoleAssignToSynapse 'Microsoft.Authorization/roleAssignments@202
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ownerRoleID)
   }
 }
-
-resource synapseAdminRoleAssignToUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: synapseRoleAdminIdentityUniqueId
-  scope: synapse
-  properties:{
-    principalId: userObjectId
-    principalType: 'User'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', synapseAdminID)
-  }
-}
-
 
 resource synapseRoleAssignToUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: synapseRoleUserUniqueId

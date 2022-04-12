@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "3177170594700449186"
+      "templateHash": "4126985862290723687"
     }
   },
   "parameters": {
@@ -18,12 +18,6 @@
     },
     "sqlAdministratorLoginPassword": {
       "type": "secureString"
-    },
-    "userLoginName": {
-      "type": "string",
-      "metadata": {
-        "description": "Login for the Active Directory user or group that will be granted access to this resource"
-      }
     },
     "userObjectId": {
       "type": "string",
@@ -131,12 +125,10 @@
     "filesystemName": "[format('{0}fs', parameters('name'))]",
     "contributorRoleID": "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
     "ownerRoleID": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
-    "synapseAdminID": "6e4bf58a-b8e1-4cc3-bbf9-d73143322b78",
     "storageRoleUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), variables('storageName'))]",
     "storageRoleUserUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), parameters('userObjectId'))]",
     "synapseRoleUserUniqueId": "[guid(resourceId('Microsoft.Synapse/workspaces', parameters('name')), parameters('userObjectId'))]",
     "synapseRoleIdentityUniqueId": "[guid(resourceId('Microsoft.Synapse/workspaces', parameters('name')))]",
-    "synapseRoleAdminIdentityUniqueId": "[guid(resourceId('Microsoft.Synapse/workspaces', parameters('name')), variables('synapseAdminID'))]",
     "storageKind": "StorageV2"
   },
   "resources": [
@@ -192,34 +184,6 @@
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[0], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[1], split(format('{0}/default/{1}', variables('storageName'), variables('filesystemName')), '/')[2])]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Synapse/workspaces/sqlAdministrators",
-      "apiVersion": "2021-06-01",
-      "name": "[format('{0}/{1}', parameters('name'), 'activeDirectory')]",
-      "properties": {
-        "administratorType": "ActiveDirectory",
-        "login": "[parameters('userLoginName')]",
-        "sid": "[parameters('userObjectId')]",
-        "tenantId": "[subscription().tenantId]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Synapse/workspaces/administrators",
-      "apiVersion": "2021-06-01",
-      "name": "[format('{0}/{1}', parameters('name'), 'activeDirectory')]",
-      "properties": {
-        "administratorType": "ActiveDirectory",
-        "login": "[parameters('userLoginName')]",
-        "sid": "[parameters('userObjectId')]",
-        "tenantId": "[subscription().tenantId]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
       ]
     },
     {
@@ -315,20 +279,6 @@
         "principalId": "[reference(resourceId('Microsoft.Synapse/workspaces', parameters('name')), '2021-06-01', 'full').identity.principalId]",
         "principalType": "ServicePrincipal",
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('ownerRoleID'))]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
-      "scope": "[format('Microsoft.Synapse/workspaces/{0}', parameters('name'))]",
-      "name": "[variables('synapseRoleAdminIdentityUniqueId')]",
-      "properties": {
-        "principalId": "[parameters('userObjectId')]",
-        "principalType": "User",
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('synapseAdminID'))]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Synapse/workspaces', parameters('name'))]"
