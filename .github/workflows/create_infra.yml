@@ -8,6 +8,8 @@ jobs:
   deploy:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
+    outputs:
+      demo-data: "$${{ fromJSON(steps.issue-parser.outputs.jsonString).demo-data }}"
     permissions:
       issues: write
     environment: synapseqa
@@ -56,6 +58,15 @@ jobs:
             
             Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
 
+  deploy-demo-data:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: ${{ needs.deploy.outputs.demo-data == "Demo data" }}
+    environment: synapseqa
+    permissions:
+      issues: write
+    steps:
+      - run: echo "upload data"
 
   comment-on-failure:
     needs: deploy

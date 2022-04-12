@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "4126985862290723687"
+      "templateHash": "17376957764473872742"
     }
   },
   "parameters": {
@@ -22,7 +22,7 @@
     "userObjectId": {
       "type": "string",
       "metadata": {
-        "description": "Object ID for the Active Directory user or group that will be granted access to this resource"
+        "description": "sid for the Active Directory user or group that will be granted access to this resource."
       }
     },
     "allowAllConnections": {
@@ -300,6 +300,10 @@
     }
   ],
   "outputs": {
+    "message": {
+      "type": "string",
+      "value": "[format('Remember to grant access to the user with the command: az synapse role assignment create --workspace-name {0} --role \"Synapse SQL Administrator\" --assignee [USER SID]', parameters('name'))]"
+    },
     "workspaceLink": {
       "type": "string",
       "value": "[reference(format('Microsoft.Synapse/workspaces/{0}', parameters('name')), '2021-06-01', 'Full').properties.connectivityEndpoints.web]"

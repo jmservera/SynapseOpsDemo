@@ -7,10 +7,7 @@ param sqlAdministratorLogin string = 'sqladminuser'
 @secure()
 param sqlAdministratorLoginPassword string
 
-// @description('Login for the Active Directory user or group that will be granted access to this resource')
-// param userLoginName string
-
-@description('sid for the Active Directory user or group that will be granted access to this resource')
+@description('sid for the Active Directory user or group that will be granted access to this resource.')
 param userObjectId string
 
 @description('When true adds a firewall rule to open access to any IP address, use only for testing')
@@ -52,7 +49,6 @@ param sqlPoolCollation string = 'SQL_Latin1_General_CP1_CI_AS'
 param sqlPoolSku string = 'DW100c'
 
 param location string = resourceGroup().location
-
 
 @description('The SKU name. Required for account creation; optional for update. Note that in older versions, SKU name was called accountType.')
 @allowed([
@@ -117,7 +113,6 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   ]
 }
 
-
 // ************* Synapse workspace *************
 
 resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
@@ -144,28 +139,6 @@ resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
     container
   ]
 }
-
-// resource synapseSQLAdmin 'Microsoft.Synapse/workspaces/sqlAdministrators@2021-06-01' = {
-//   parent: synapse
-//   name: 'activeDirectory'
-//   properties: {
-//     administratorType: 'ActiveDirectory'
-//     login: userLoginName
-//     sid: userObjectId
-//     tenantId: subscription().tenantId
-//   }
-// }
-
-// resource synapseAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' = {
-//   parent: synapse
-//   name: 'activeDirectory'
-//   properties: {
-//     administratorType: 'ActiveDirectory'
-//     login: userLoginName
-//     sid: userObjectId
-//     tenantId: subscription().tenantId
-//   }
-// }
 
 resource sqlpool 'Microsoft.Synapse/workspaces/sqlPools@2021-03-01' = if(createDedicatedPool) {
   name: '${name}sql'
@@ -200,8 +173,6 @@ resource synapse_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01
   }
 }
 
-//example https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.synapse/synapse-poc/azuredeploy.json
-
 resource synapse_grant 'Microsoft.Synapse/workspaces/managedIdentitySqlControlSettings@2021-06-01' = {
   parent: synapse
   name: 'default'
@@ -212,9 +183,7 @@ resource synapse_grant 'Microsoft.Synapse/workspaces/managedIdentitySqlControlSe
   }
 }
 
-// TODO Add workspace role assignments
-
-// Role Assignments
+// Role Assignments for storage
 resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: storageRoleUniqueId
   scope: datalake
@@ -235,6 +204,7 @@ resource userroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
+// Role assignments for synapse ownership
 resource synapseRoleAssignToSynapse 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: synapseRoleIdentityUniqueId
   scope: synapse
@@ -256,4 +226,5 @@ resource synapseRoleAssignToUser 'Microsoft.Authorization/roleAssignments@2020-0
 }
 
 // ******** Output ********
+output message string = 'Remember to grant access to the user with the command: az synapse role assignment create --workspace-name ${name} --role "Synapse SQL Administrator" --assignee [USER SID]'
 output workspaceLink string = reference('Microsoft.Synapse/workspaces/${name}', '2021-06-01', 'Full').properties.connectivityEndpoints['web']
