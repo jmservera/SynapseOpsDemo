@@ -61,7 +61,7 @@ jobs:
   deploy-demo-data:
     needs: deploy
     runs-on: ubuntu-latest
-    if: ${{ needs.deploy.outputs.demo-data == "Demo data" }}
+    if: ${{ needs.deploy.outputs.demo-data == 'Demo data' }}
     environment: synapseqa
     permissions:
       issues: write
