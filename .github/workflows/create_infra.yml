@@ -34,10 +34,6 @@ jobs:
         with:
           template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml
 
-      - run: |
-          echo -e "${{ fromJSON(steps.issue-parser.outputs.jsonString).demo-data }}"
-          echo "${{ fromJSON(steps.issue-parser.outputs.jsonString).demo-data == 'Demo data' }}"
-
       - name: Deploy Synapse ARM Template
         uses: Azure/arm-deploy@v1
         id: template
