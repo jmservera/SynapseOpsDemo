@@ -12,6 +12,8 @@ jobs:
       demo-data: "${{ fromJSON(steps.issue-parser.outputs.jsonString).demo-data }}"
       storage-name: "${{ steps.template.outputs.storageName }}"
       container-name: "${{ steps.template.outputs.containerName }}"
+      resource-name: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}"
+      resource-group: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}"
     permissions:
       issues: write
     environment: synapseqa
@@ -75,6 +77,20 @@ jobs:
       - run: |
           echo "upload data"
           az storage blob upload --account-name ${{ needs.deploy.outputs.storage-name }} --container-name "${{ needs.deploy.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
+      - uses: azure/synapse-workspace-deployment@release-1.0
+        with:
+          TargetWorkspaceName: ${{ needs.deploy.outputs.resource-name }}
+          TemplateFile: './jmsynapsews/TemplateForWorkspace.json'
+          ParametersFile: './jmsynapsews/TemplateParametersForWorkspace.json'
+          OverrideArmParameters: './jmsynapsews/TemplateParametersForWorkspace.json'
+          environment: 'Azure Public'
+          resourceGroup: ${{ needs.deploy.outputs.resource-group }}
+          clientId: ${{secrets.CLIENTID}}
+          clientSecret:  ${{secrets.CLIENTSECRET}}
+          subscriptionId: '${{secrets.SUBSCRIPTIONID}}'
+          tenantId: '${{secrets.TENANTID}}'
+          DeleteArtifactsNotInTemplate: 'true'
+          managedIdentity: 'False'
   comment-on-failure:
     needs: deploy
     runs-on: ubuntu-latest
