@@ -228,3 +228,5 @@ resource synapseRoleAssignToUser 'Microsoft.Authorization/roleAssignments@2020-0
 // ******** Output ********
 output message string = 'Remember to grant access to the user with the command: az synapse role assignment create --workspace-name ${name} --role "Synapse SQL Administrator" --assignee [USER SID]'
 output workspaceLink string = reference('Microsoft.Synapse/workspaces/${name}', '2021-06-01', 'Full').properties.connectivityEndpoints['web']
+output storageName string = storageName
+output containerName string= container.name

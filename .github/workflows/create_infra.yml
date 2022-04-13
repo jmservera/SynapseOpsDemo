@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       demo-data: "${{ fromJSON(steps.issue-parser.outputs.jsonString).demo-data }}"
+      storage-name: "${{ steps.template.outputs.storageName }}"
+      container-name: "${{ steps.template.outputs.containerName }}"
     permissions:
       issues: write
     environment: synapseqa
@@ -33,7 +35,7 @@ jobs:
         id: issue-parser
         with:
           template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml
-
+          
       - name: Deploy Synapse ARM Template
         uses: Azure/arm-deploy@v1
         id: template
@@ -66,8 +68,9 @@ jobs:
     permissions:
       issues: write
     steps:
-      - run: echo "upload data"
-
+      - run: |
+          echo "upload data"
+          az storage blob upload --account-name ${{ needs.deploy.outputs.storage-name }} --container-name "${{ needs.deploy.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
   comment-on-failure:
     needs: deploy
     runs-on: ubuntu-latest
