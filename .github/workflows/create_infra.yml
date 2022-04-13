@@ -68,6 +68,9 @@ jobs:
     permissions:
       issues: write
     steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - run: |
           echo "upload data"
           az storage blob upload --account-name ${{ needs.deploy.outputs.storage-name }} --container-name "${{ needs.deploy.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
