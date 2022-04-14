@@ -30,9 +30,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get Current id
+      - name: Get Current user objectId
         id: get-current-id
-        run: echo "::set-output name=spsid::$(az account show --query id --output tsv)"
+        run: echo "::set-output name=spsid::$(az ad signed-in-user show --query objectId --output tsv)"
 
       - uses: actions/checkout@v3
 
