@@ -30,6 +30,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Get Current id
+        id: get-current-id
+        run: echo "::set-output name=spsid::$(az account show --query id --output tsv)"
+
       - uses: actions/checkout@v3
 
       - name: GitHub Issue Parser
@@ -45,7 +49,7 @@ jobs:
           resourceGroupName: ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}
           deploymentName: ghdeploy_${{ github.event.issue.number }}_${{ github.run_id }}
           template: ./template/template.bicep
-          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} 
+          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} spSid=${{ steps.get-current-id.outputs.spsid }}}} 
           # userLoginName=${{ secrets.USER }}
 
       # This step is needed to get access to the user/group to the Synapse, if it is not assigned the workspace will show strange permission errors

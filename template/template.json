@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "17029612867539669613"
+      "templateHash": "17819410991336767590"
     }
   },
   "parameters": {
@@ -116,6 +116,12 @@
       ],
       "metadata": {
         "description": "Set the minimum TLS version to be permitted on requests to storage. The default interpretation is TLS 1.2 for this property."
+      }
+    },
+    "spSid": {
+      "type": "string",
+      "metadata": {
+        "description": "The id for an additional user to get access to the storage account, this is usually the Service Principal used in a CI/CD pipeline."
       }
     }
   },
@@ -257,6 +263,21 @@
       ]
     },
     {
+      "condition": "[not(equals(parameters('spSid'), ''))]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', variables('storageName'))]",
+      "name": "[guid('pipeline-sid', parameters('spSid'))]",
+      "properties": {
+        "principalId": "[parameters('spSid')]",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('contributorRoleID'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+      ]
+    },
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', variables('storageName'))]",
@@ -314,7 +335,7 @@
     },
     "containerName": {
       "type": "string",
-      "value": "[format('{0}/default/{1}', variables('storageName'), variables('filesystemName'))]"
+      "value": "[variables('filesystemName')]"
     }
   }
 }

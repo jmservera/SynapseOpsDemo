@@ -71,6 +71,9 @@ param storageAccountType string = 'Standard_LRS'
 ])
 param minimumTlsVersion string = 'TLS1_2'
 
+@description('The id for an additional user to get access to the storage account, this is usually the Service Principal used in a CI/CD pipeline.')
+param spSid string
+
 // ************** Variables *******************
 
 var uniqueName = substring('${name}${uniqueString(resourceGroup().id)}',0,19)
@@ -189,6 +192,16 @@ resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-p
   scope: datalake
   properties:{
     principalId: synapse.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleID)
+  }
+}
+
+resource synapseroleassigntosp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if(spSid!='') {
+  name: guid('pipeline-sid',spSid)
+  scope: datalake
+  properties:{
+    principalId: spSid
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleID)
   }
