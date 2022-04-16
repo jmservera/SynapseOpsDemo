@@ -71,6 +71,9 @@ param storageAccountType string = 'Standard_LRS'
 ])
 param minimumTlsVersion string = 'TLS1_2'
 
+@description('The id for an additional user to get access to the storage account, this is usually the Service Principal used in a CI/CD pipeline.')
+param spSid string
+
 // ************** Variables *******************
 
 var uniqueName = substring('${name}${uniqueString(resourceGroup().id)}',0,19)
@@ -80,6 +83,7 @@ var contributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var ownerRoleID = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
 var storageRoleUniqueId =  guid(resourceId('Microsoft.Storage/storageAccounts', name), storageName)
 var storageRoleUserUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), userObjectId)
+var storageRoleSPUniqueId = guid(resourceId('Microsoft.Storage/storageAccounts', name), spSid)
 var synapseRoleUserUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name), userObjectId)
 var synapseRoleIdentityUniqueId = guid(resourceId('Microsoft.Synapse/workspaces', name))
 var storageKind = 'StorageV2'
@@ -189,6 +193,16 @@ resource synapseroleassing 'Microsoft.Authorization/roleAssignments@2020-04-01-p
   scope: datalake
   properties:{
     principalId: synapse.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleID)
+  }
+}
+
+resource synapseroleassigntosp 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if(spSid!='') {
+  name: storageRoleSPUniqueId
+  scope: datalake
+  properties:{
+    principalId: spSid
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleID)
   }
