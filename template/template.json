@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.5.6.12127",
-      "templateHash": "17819410991336767590"
+      "templateHash": "2706468464525826946"
     }
   },
   "parameters": {
@@ -133,6 +133,7 @@
     "ownerRoleID": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
     "storageRoleUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), variables('storageName'))]",
     "storageRoleUserUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), parameters('userObjectId'))]",
+    "storageRoleSPUniqueId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), parameters('spSid'))]",
     "synapseRoleUserUniqueId": "[guid(resourceId('Microsoft.Synapse/workspaces', parameters('name')), parameters('userObjectId'))]",
     "synapseRoleIdentityUniqueId": "[guid(resourceId('Microsoft.Synapse/workspaces', parameters('name')))]",
     "storageKind": "StorageV2"
@@ -267,7 +268,7 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', variables('storageName'))]",
-      "name": "[guid('pipeline-sid', parameters('spSid'))]",
+      "name": "[variables('storageRoleSPUniqueId')]",
       "properties": {
         "principalId": "[parameters('spSid')]",
         "principalType": "ServicePrincipal",
@@ -336,6 +337,10 @@
     "containerName": {
       "type": "string",
       "value": "[variables('filesystemName')]"
+    },
+    "datalakeLink": {
+      "type": "string",
+      "value": "[format(format('https://{0}.dfs.{1}', variables('storageName'), environment().suffixes.storage))]"
     }
   }
 }

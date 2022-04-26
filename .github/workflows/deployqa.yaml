@@ -6,7 +6,7 @@ name: DeployToQA
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ qa ]
+    branches: [qa]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,16 +29,15 @@ jobs:
 
       - uses: azure/synapse-workspace-deployment@release-1.0
         with:
-          TargetWorkspaceName: 'jmsynapseqaws'
-          TemplateFile: './jmsynapsews/TemplateForWorkspace.json'
-          ParametersFile: './jmsynapsews/TemplateParametersForWorkspace.json'
-          OverrideArmParameters: './jmsynapsews/TemplateParametersForWorkspace.json'
-          environment: 'Azure Public'
-          resourceGroup: 'synapseeus'
+          TargetWorkspaceName: "jmsynapseqaws"
+          TemplateFile: "./jmsynapsews/TemplateForWorkspace.json"
+          ParametersFile: "./jmsynapsews/TemplateParametersForWorkspace.json"
+          OverrideArmParameters: "./jmsynapsews/TemplateParametersForWorkspace.json"
+          environment: "Azure Public"
+          resourceGroup: "synapseeus"
           clientId: ${{secrets.CLIENTID}}
-          clientSecret:  ${{secrets.CLIENTSECRET}}
-          subscriptionId: '${{secrets.SUBSCRIPTIONID}}'
-          tenantId: '${{secrets.TENANTID}}'
-          DeleteArtifactsNotInTemplate: 'true'
-          managedIdentity: 'False'
-
+          clientSecret: ${{secrets.CLIENTSECRET}}
+          subscriptionId: "${{secrets.SUBSCRIPTIONID}}"
+          tenantId: "${{secrets.TENANTID}}"
+          DeleteArtifactsNotInTemplate: "true"
+          managedIdentity: "False"

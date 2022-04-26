@@ -244,3 +244,4 @@ output message string = 'Remember to grant access to the user with the command: 
 output workspaceLink string = reference('Microsoft.Synapse/workspaces/${name}', '2021-06-01', 'Full').properties.connectivityEndpoints['web']
 output storageName string = storageName
 output containerName string= filesystemName
+output datalakeLink string = format('https://${storageName}.dfs.${environment().suffixes.storage}')
