@@ -61,8 +61,8 @@ jobs:
           limit=0
           state=""
           echo -n "Waiting for firewall rule to be created..."
+          state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
           while [ "$state" != "Succeeded" ]; do
-            state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
             limit=$((limit+1))
             if [ "$limit" -gt "60" ]; then
               echo "::error::Timeout waiting for firewall rule to be created"
@@ -70,6 +70,7 @@ jobs:
             fi
             sleep 1
             echo -n "."
+            state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
           done
 
           az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse Administrator" --assignee ${{ secrets.OBJECTID }}
