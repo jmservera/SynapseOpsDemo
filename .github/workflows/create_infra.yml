@@ -56,11 +56,24 @@ jobs:
           # userLoginName=${{ secrets.USER }}
 
       # This step is needed to get access to the user/group to the Synapse, if it is not assigned the workspace will show strange permission errors
-      - name: Assign SQL Administrator to OBJECTID user
-        run: az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.OBJECTID }}
+      - name: Assign privileges to OBJECTID user
+        run: |
+          limit=0
+          state=""
+          echo -n "Waiting for firewall rule to be created..."
+          while [ "$state" != "Succeeded" ]; do
+            state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
+            limit=$((limit+1))
+            if [ "$limit" -gt "60" ]; then
+              echo "::error::Timeout waiting for firewall rule to be created"
+              break
+            fi
+            sleep 1
+            echo -n "."
+          done
 
-      - name: Assign Administrator to OBJECTID user
-        run: az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse Administrator" --assignee ${{ secrets.OBJECTID }}
+          az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse Administrator" --assignee ${{ secrets.OBJECTID }}
+          az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.OBJECTID }}
 
       - name: Close Issue after creating Synapse Environment
         uses: peter-evans/close-issue@v2
