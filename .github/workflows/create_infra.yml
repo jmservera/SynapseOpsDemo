@@ -81,15 +81,15 @@ jobs:
         with:
           comment: |
             **Deployment finished. Your workspace has been created**
-            
+
             You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}                      
             Find the full run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
             @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource.
 
   deploy-demo-data:
-    needs: deploy
+    needs: deploy-synapse-infra
     runs-on: ubuntu-latest
-    if: ${{ needs.deploy.outputs.demo-data == 'Demo data' }}
+    if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
     environment: synapseqa
     steps:
       - uses: azure/login@v1
@@ -98,27 +98,27 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           echo "upload data"
-          az storage blob upload --account-name ${{ needs.deploy.outputs.storage-name }} --container-name "${{ needs.deploy.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
+          az storage blob upload --account-name ${{ needs.deploy-synapse-infra.outputs.storage-name }} --container-name "${{ needs.deploy-synapse-infra.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
   workspace-deployment:
-    needs: deploy
+    needs: deploy-synapse-infra
     runs-on: ubuntu-latest
-    if: ${{ needs.deploy.outputs.demo-data == 'Demo data' }}
+    if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
     environment: synapseqa
     steps:
       - uses: actions/checkout@v3
       - name: Generate Overrides file for this deployment
         run: |
           echo "generate overrides"
-          echo "jmsynapsews-WorkspaceDefaultStorage_properties_typeProperties_url: ${{ needs.deploy.outputs.datalake-link }}" > overrides.yml
-          echo "workspaceName: ${{ needs.deploy.outputs.resource-name }}" >> overrides.yml
+          echo "jmsynapsews-WorkspaceDefaultStorage_properties_typeProperties_url: ${{ needs.deploy-synapse-infra.outputs.datalake-link }}" > overrides.yml
+          echo "workspaceName: ${{ needs.deploy-synapse-infra.outputs.resource-name }}" >> overrides.yml
       - uses: azure/synapse-workspace-deployment@release-1.0
         with:
-          TargetWorkspaceName: ${{ needs.deploy.outputs.resource-name }}
+          TargetWorkspaceName: ${{ needs.deploy-synapse-infra.outputs.resource-name }}
           TemplateFile: "./jmsynapsews/TemplateForWorkspace.json"
           ParametersFile: "./jmsynapsews/TemplateParametersForWorkspace.json"
           OverrideArmParameters: "./overrides.yml"
           environment: "Azure Public"
-          resourceGroup: ${{ needs.deploy.outputs.resource-group }}
+          resourceGroup: ${{ needs.deploy-synapse-infra.outputs.resource-group }}
           clientId: ${{secrets.CLIENTID}}
           clientSecret: ${{secrets.CLIENTSECRET}}
           subscriptionId: "${{secrets.SUBSCRIPTIONID}}"
@@ -126,7 +126,7 @@ jobs:
           DeleteArtifactsNotInTemplate: "true"
           managedIdentity: "False"
   comment-on-failure:
-    needs: [deploy, deploy-demo-data, workspace-deployment]
+    needs: [deploy-synapse-infra, deploy-demo-data, workspace-deployment]
     runs-on: ubuntu-latest
     if: ${{ failure() }}
     permissions:
