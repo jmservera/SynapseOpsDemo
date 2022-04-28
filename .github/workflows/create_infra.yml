@@ -73,6 +73,9 @@ jobs:
             state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
           done
 
+          echo "Wait 2 minutes for letting firewall refresh"
+          sleep 2m
+
           echo "Assigning Admin permission to user in secrets.OBJECTID"
           az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse Administrator" --assignee ${{ secrets.OBJECTID }}
           az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.OBJECTID }}
