@@ -6,6 +6,7 @@ on:
 
 jobs:
   deploy-synapse-infra:
+    name: Deploy Synapse Infra
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
     outputs:
@@ -87,6 +88,7 @@ jobs:
             @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource.
 
   deploy-demo-data:
+    name: Deploy Demo Data
     needs: deploy-synapse-infra
     runs-on: ubuntu-latest
     if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
@@ -100,6 +102,7 @@ jobs:
           echo "upload data"
           az storage blob upload --account-name ${{ needs.deploy-synapse-infra.outputs.storage-name }} --container-name "${{ needs.deploy-synapse-infra.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
   workspace-deployment:
+    name: Deploy Synapse Workspace
     needs: deploy-synapse-infra
     runs-on: ubuntu-latest
     if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
@@ -126,6 +129,7 @@ jobs:
           DeleteArtifactsNotInTemplate: "true"
           managedIdentity: "False"
   comment-on-failure:
+    name: Comment on failure
     needs: [deploy-synapse-infra, deploy-demo-data, workspace-deployment]
     runs-on: ubuntu-latest
     if: ${{ failure() }}
