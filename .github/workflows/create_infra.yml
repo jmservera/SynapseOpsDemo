@@ -5,7 +5,7 @@ on:
     types: [opened, edited]
 
 jobs:
-  deploy:
+  deploy-synapse-infra:
     if: ${{ startsWith(github.event.issue.title, '[Create]') }}
     runs-on: ubuntu-latest
     outputs:
@@ -53,14 +53,13 @@ jobs:
           deploymentName: ghdeploy_${{ github.event.issue.number }}_${{ github.run_id }}
           template: ./template/template.bicep
           parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} spSid=${{ steps.get-current-id.outputs.spsid }}
-          # userLoginName=${{ secrets.USER }}
 
       # This step is needed to get access to the user/group to the Synapse, if it is not assigned the workspace will show strange permission errors
       - name: Assign privileges to OBJECTID user
         run: |
           limit=0
           state=""
-          echo -n "Waiting for firewall rule to be created..."
+          echo -n "Waiting for firewall rule to be created"
           state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
           while [ "$state" != "Succeeded" ]; do
             limit=$((limit+1))
@@ -73,6 +72,7 @@ jobs:
             state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
           done
 
+          echo "Assigning Admin permission to user in secrets.OBJECTID"
           az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse Administrator" --assignee ${{ secrets.OBJECTID }}
           az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.OBJECTID }}
 
@@ -81,18 +81,16 @@ jobs:
         with:
           comment: |
             **Deployment finished. Your workspace has been created**
-            Link to your newly created workspace: ${{ steps.template.outputs.workspaceLink }}            
-            @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource
+            You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}                      
 
-            Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
+            Find the full run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
 
+            @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource.
   deploy-demo-data:
     needs: deploy
     runs-on: ubuntu-latest
     if: ${{ needs.deploy.outputs.demo-data == 'Demo data' }}
     environment: synapseqa
-    permissions:
-      issues: write
     steps:
       - uses: azure/login@v1
         with:
@@ -106,11 +104,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.deploy.outputs.demo-data == 'Demo data' }}
     environment: synapseqa
-    permissions:
-      issues: write
     steps:
       - uses: actions/checkout@v3
-      - name: Generate Overrides for deployment
+      - name: Generate Overrides file for this deployment
         run: |
           echo "generate overrides"
           echo "jmsynapsews-WorkspaceDefaultStorage_properties_typeProperties_url: ${{ needs.deploy.outputs.datalake-link }}" > overrides.yml
