@@ -88,9 +88,11 @@ jobs:
           comment: |
             **Deployment finished. Your workspace has been created**
 
-            You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}                      
+            :hello: @${{ github.event.issue.user.login }}, this issue was automatically closed after creating the resource.
+
+            You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}
+
             Find the full run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
-            @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource.
 
   deploy-demo-data:
     name: Deploy Demo Data
