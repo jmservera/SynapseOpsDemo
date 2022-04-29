@@ -114,6 +114,10 @@ jobs:
     environment: synapseqa
     steps:
       - uses: actions/checkout@v3
+      - name: Replace storage links
+        run: |
+          sed -i "s|https://jmsynapsedl.dfs.core.windows.net/jmsynapsefs|{{ needs.deploy-synapse-infra.outputs.datalake-link }}/${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
+          sed -i "s|jmsynapsefs|${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
       - name: Generate Overrides file for this deployment
         run: |
           echo "generate overrides"
