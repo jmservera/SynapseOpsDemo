@@ -108,6 +108,7 @@ jobs:
       - run: |
           echo "upload data"
           az storage blob upload --account-name ${{ needs.deploy-synapse-infra.outputs.storage-name }} --container-name "${{ needs.deploy-synapse-infra.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
+
   workspace-deployment:
     name: Deploy Synapse Workspace
     needs: deploy-synapse-infra
@@ -139,6 +140,7 @@ jobs:
           tenantId: "${{secrets.TENANTID}}"
           DeleteArtifactsNotInTemplate: "true"
           managedIdentity: "False"
+
   comment-on-failure:
     name: Comment on failure
     needs: [deploy-synapse-infra, deploy-demo-data, workspace-deployment]
