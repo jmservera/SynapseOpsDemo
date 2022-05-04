@@ -8,14 +8,8 @@
 		"jmsynapsedemo-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
-		"jmsynapsews-WorkspaceDefaultSqlServer_connectionString": {
-			"value": ""
-		},
 		"jmsynapsedemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/"
-		},
-		"jmsynapsews-WorkspaceDefaultStorage_properties_typeProperties_url": {
-			"value": "https://jmsynapsedl.dfs.core.windows.net"
 		}
 	}
 }
