@@ -1,0 +1,158 @@
+name: Create Infra
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  deploy-synapse-infra:
+    name: Deploy Synapse Infra
+    if: ${{ startsWith(github.event.issue.title, '[Create]') }}
+    runs-on: ubuntu-latest
+    outputs:
+      demo-data: "${{ fromJSON(steps.issue-parser.outputs.jsonString).demo-data }}"
+      datalake-link: "${{ steps.template.outputs.datalakeLink }}"
+      storage-name: "${{ steps.template.outputs.storageName }}"
+      container-name: "${{ steps.template.outputs.containerName }}"
+      resource-name: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}"
+      resource-group: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}"
+    permissions:
+      issues: write
+    environment: synapseqa
+    steps:
+      - name: Create comment for start
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            **Starting deployment**
+            Follow the run through this link:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get Current user objectId
+        id: get-current-id
+        run: |
+          spName=$(az account show --query user.name -o tsv)
+          echo "::set-output name=spsid::$(az ad sp show --id $spName --query objectId -o tsv)"
+
+      - uses: actions/checkout@v3
+
+      - name: GitHub Issue Parser
+        uses: stefanbuck/github-issue-parser@v2
+        id: issue-parser
+        with:
+          template-path: .github/ISSUE_TEMPLATE/create-synapse-environment.yml
+
+      - name: Deploy Synapse ARM Template
+        uses: Azure/arm-deploy@v1
+        id: template
+        with:
+          resourceGroupName: ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}
+          deploymentName: ghdeploy_${{ github.event.issue.number }}_${{ github.run_id }}
+          template: ./template/template.bicep
+          parameters: name=${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} sqlAdministratorLoginPassword=${{ secrets.SQL_SERVER }} userObjectId=${{ secrets.OBJECTID }} spSid=${{ steps.get-current-id.outputs.spsid }}
+
+      # This step is needed to get access to the user/group to the Synapse, if it is not assigned the workspace will show strange permission errors
+      # Another issue here is that the firewall rules are refreshed every 1 minute, so the application is not immediate and if we don't
+      # wait enough time we will get a permission error
+      - name: Assign privileges to OBJECTID user
+        run: |
+          limit=0
+          state=""
+          echo -n "Waiting for firewall rule to be created"
+          state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
+          while [ "$state" != "Succeeded" ]; do
+            limit=$((limit+1))
+            if [ "$limit" -gt "60" ]; then
+              echo "::error::Timeout waiting for firewall rule to be created"
+              break
+            fi
+            sleep 1
+            echo -n "."
+            state=$(az synapse workspace firewall-rule list --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }} --resource-group ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }} --query [0].provisioningState -o tsv)
+          done
+
+          echo "Wait 2 minutes for letting firewall refresh"
+          sleep 2m
+
+          echo "Assigning Admin permission to user in secrets.OBJECTID"
+          az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse Administrator" --assignee ${{ secrets.OBJECTID }}
+          az synapse role assignment create --workspace-name ${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-name }}  --role "Synapse SQL Administrator" --assignee ${{ secrets.OBJECTID }}
+
+      - name: Close Issue after creating Synapse Environment
+        uses: peter-evans/close-issue@v2
+        with:
+          comment: |
+            **Deployment finished. Your workspace has been created**
+
+            :wave: @${{ github.event.issue.user.login }}, this issue was automatically closed after creating the resource.
+
+            You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}
+
+            Find the full run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
+
+  deploy-demo-data:
+    name: Deploy Demo Data
+    needs: deploy-synapse-infra
+    runs-on: ubuntu-latest
+    if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
+    environment: synapseqa
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: actions/checkout@v3
+      - run: |
+          echo "upload data"
+          az storage blob upload --account-name ${{ needs.deploy-synapse-infra.outputs.storage-name }} --container-name "${{ needs.deploy-synapse-infra.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
+
+  workspace-deployment:
+    name: Deploy Synapse Workspace
+    needs: deploy-synapse-infra
+    runs-on: ubuntu-latest
+    if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
+    environment: synapseqa
+    steps:
+      - uses: actions/checkout@v3
+      - name: Replace storage links
+        run: |
+          sed -i "s|https://jmsynapsedl.dfs.core.windows.net/jmsynapsefs|${{ needs.deploy-synapse-infra.outputs.datalake-link }}/${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
+          sed -i "s|jmsynapsefs|${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
+      - name: Generate Overrides file for this deployment
+        run: |
+          echo "generate overrides"
+          echo "jmsynapsews-WorkspaceDefaultStorage_properties_typeProperties_url: ${{ needs.deploy-synapse-infra.outputs.datalake-link }}" > overrides.yml
+          echo "workspaceName: ${{ needs.deploy-synapse-infra.outputs.resource-name }}" >> overrides.yml
+      - uses: azure/synapse-workspace-deployment@release-1.0
+        with:
+          TargetWorkspaceName: ${{ needs.deploy-synapse-infra.outputs.resource-name }}
+          TemplateFile: "./jmsynapsews/TemplateForWorkspace.json"
+          ParametersFile: "./jmsynapsews/TemplateParametersForWorkspace.json"
+          OverrideArmParameters: "./overrides.yml"
+          environment: "Azure Public"
+          resourceGroup: ${{ needs.deploy-synapse-infra.outputs.resource-group }}
+          clientId: ${{secrets.CLIENTID}}
+          clientSecret: ${{secrets.CLIENTSECRET}}
+          subscriptionId: "${{secrets.SUBSCRIPTIONID}}"
+          tenantId: "${{secrets.TENANTID}}"
+          DeleteArtifactsNotInTemplate: "true"
+          managedIdentity: "False"
+
+  comment-on-failure:
+    name: Comment on failure
+    needs: [deploy-synapse-infra, deploy-demo-data, workspace-deployment]
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    permissions:
+      issues: write
+    steps:
+      - name: Create failure comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            :warning: Run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} failed.
+            @${{ github.event.issue.user.login }} Check the logs for more information.
