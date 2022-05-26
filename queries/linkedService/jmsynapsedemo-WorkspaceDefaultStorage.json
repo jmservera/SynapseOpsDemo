@@ -1,9 +1,9 @@
 {
-	"name": "jmsynapsews-WorkspaceDefaultStorage",
+	"name": "jmsynapsedemo-WorkspaceDefaultStorage",
 	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
 		"typeProperties": {
-			"url": "https://jmsynapsedl.dfs.core.windows.net"
+			"url": "https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/"
 		},
 		"type": "AzureBlobFS",
 		"connectVia": {

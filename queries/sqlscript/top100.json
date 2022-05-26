@@ -1,0 +1,20 @@
+{
+	"name": "top100",
+	"properties": {
+		"folder": {
+			"name": "NYCStrip"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    TOP 150 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
