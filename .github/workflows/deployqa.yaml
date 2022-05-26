@@ -1,14 +1,6 @@
-# This is a basic workflow to help you get started with Actions
-
 name: DeployToQA
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-#  push:
-#    branches: [ qa ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       targetWorkspace:
@@ -23,34 +15,23 @@ on:
         default: jmsynapsedemo
         required: true
         description: 'Name of the original template'
-      
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+  pull_request:
+    branches: [ qa ]
+    types: [closed]
+
 jobs:
-  # This workflow contains a single job called "build"
-  deployment:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    environment: synapseqa
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+  call-deploy-to-qa-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: ./deployqa_reusable.yaml
+    with:
+      targetWorkspace: '${{ github.event.inputs.targetWorkspace }}'
+      resourceGroup: '${{ github.event.inputs.resourceGroup }}'
+      template: '${{ github.event.inputs.template }}'
 
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - uses: azure/synapse-workspace-deployment@release-1.0
-        with:
-          TargetWorkspaceName: '${{ github.event.inputs.targetWorkspace }}'
-          TemplateFile: './${{ github.event.inputs.template }}/TemplateForWorkspace.json'
-          ParametersFile: './${{ github.event.inputs.template }}/TemplateParametersForWorkspace.json'
-          environment: 'Azure Public'
-          resourceGroup: '${{ github.event.inputs.resourceGroup }}'
-          clientId: ${{secrets.CLIENTID}}
-          clientSecret:  ${{secrets.CLIENTSECRET}}
-          subscriptionId: '${{secrets.SUBSCRIPTIONID}}'
-          tenantId: '${{secrets.TENANTID}}'
-          DeleteArtifactsNotInTemplate: 'true'
-          managedIdentity: 'False'
-
+  call-deploy-to-qa-push:  
+    if: ${{ github.event_name == 'push' && github.event.pull_request.merged == true }}
+    uses: ./deployqa_reusable.yaml
+    with:
+      targetWorkspace: jmsynapseqaw
+      resourceGroup: synapsedemo
+      template: jmsynapsedemo
