@@ -1,0 +1,57 @@
+name: DeployToQA_Reusable
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_call:
+    inputs:
+      targetWorkspace:
+        required: true
+        description: 'Name of the target workspace'
+        type: string
+      resourceGroup:
+        required: true
+        description: 'Name of the resource group containing the target workspace'
+        type: string
+      template:
+        required: true
+        description: 'Name of the original template'
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      CLIENTID: 
+        required: true
+      CLIENTSECRET:
+        required: true
+      SUBSCRIPTIONID:
+        required: true
+      TENANTID:
+        required: true
+      
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: synapseqa
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/synapse-workspace-deployment@release-1.0
+        with:
+          TargetWorkspaceName: '${{ inputs.targetWorkspace }}'
+          TemplateFile: './${{ inputs.template }}/TemplateForWorkspace.json'
+          ParametersFile: './${{ inputs.template }}/TemplateParametersForWorkspace.json'
+          environment: 'Azure Public'
+          resourceGroup: '${{ inputs.resourceGroup }}'
+          clientId: ${{secrets.CLIENTID}}
+          clientSecret:  ${{secrets.CLIENTSECRET}}
+          subscriptionId: '${{secrets.SUBSCRIPTIONID}}'
+          tenantId: '${{secrets.TENANTID}}'
+          DeleteArtifactsNotInTemplate: 'true'
+          managedIdentity: 'False'
+
