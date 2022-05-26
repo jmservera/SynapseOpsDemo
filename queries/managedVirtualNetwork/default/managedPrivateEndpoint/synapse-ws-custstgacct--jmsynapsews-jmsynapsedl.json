@@ -1,0 +1,7 @@
+{
+	"name": "synapse-ws-custstgacct--jmsynapsews-jmsynapsedl",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/f19b7695-9685-461e-9700-2d9674197593/resourceGroups/synapseeus/providers/Microsoft.Storage/storageAccounts/jmsynapsedl",
+		"groupId": "dfs"
+	}
+}
