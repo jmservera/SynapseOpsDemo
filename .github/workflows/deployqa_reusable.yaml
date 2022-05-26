@@ -16,6 +16,17 @@ on:
         required: true
         description: 'Name of the original template'
         type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      CLIENTID: 
+        required: true
+      CLIENTSECRET:
+        required: true
+      SUBSCRIPTIONID:
+        required: true
+      TENANTID:
+        required: true
       
 jobs:
   deployment:
