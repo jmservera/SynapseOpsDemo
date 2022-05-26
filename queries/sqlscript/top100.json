@@ -5,7 +5,7 @@
 			"name": "NYCStrip"
 		},
 		"content": {
-			"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
+			"query": "-- This is auto-generated code\nSELECT\n    TOP 150 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
 			"metadata": {
 				"language": "sql"
 			},
