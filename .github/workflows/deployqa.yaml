@@ -22,7 +22,7 @@ on:
 jobs:
   call-deploy-to-qa-dispatch:
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    uses: ./deployqa_reusable.yaml
+    uses: jmenterprisedemo/SynapseOpsDemo/.github/workflows/deployqa_reusable.yaml@qa
     with:
       targetWorkspace: '${{ github.event.inputs.targetWorkspace }}'
       resourceGroup: '${{ github.event.inputs.resourceGroup }}'
@@ -30,7 +30,7 @@ jobs:
 
   call-deploy-to-qa-push:  
     if: ${{ github.event_name == 'push' && github.event.pull_request.merged == true }}
-    uses: ./deployqa_reusable.yaml
+    uses: jmenterprisedemo/SynapseOpsDemo/.github/workflows/deployqa_reusable.yaml@qa
     with:
       targetWorkspace: jmsynapseqaw
       resourceGroup: synapsedemo
