@@ -18,7 +18,7 @@ jobs:
       resource-group: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}"
     permissions:
       issues: write
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - name: Create comment for start
         uses: peter-evans/create-or-update-comment@v2
