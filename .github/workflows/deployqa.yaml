@@ -33,8 +33,8 @@ jobs:
     if: ${{ github.event_name == 'push' && github.event.pull_request.merged == true }}
     uses: jmenterprisedemo/SynapseOpsDemo/.github/workflows/deployqa_reusable.yaml@qa
     with:
-      targetWorkspace: '${{ github.event.inputs.targetWorkspace }}'
-      resourceGroup: '${{ github.event.inputs.resourceGroup }}'
-      template: '${{ github.event.inputs.template }}'
+      targetWorkspace: jmsynapseqaws
+      resourceGroup: synapsedemo
+      template: jmsynapsedemo
     secrets: inherit
 
