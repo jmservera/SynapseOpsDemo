@@ -36,7 +36,7 @@ jobs:
         id: get-current-id
         run: |
           spName=$(az account show --query user.name -o tsv)
-          echo "::set-output name=spsid::$(az ad sp show --id $spName --query objectId -o tsv)"
+          echo "::set-output name=spsid::$(az ad sp show --id $spName --query id -o tsv)"
 
       - uses: actions/checkout@v3
 
