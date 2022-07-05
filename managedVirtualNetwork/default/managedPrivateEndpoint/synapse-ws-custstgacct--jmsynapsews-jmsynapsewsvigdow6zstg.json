@@ -1,7 +1,0 @@
-{
-	"name": "synapse-ws-custstgacct--jmsynapsews-jmsynapsewsvigdow6zstg",
-	"properties": {
-		"privateLinkResourceId": "/subscriptions/b83ae1c9-4dcb-4d45-8b76-a813d212f36c/resourceGroups/synapsedemo/providers/Microsoft.Storage/storageAccounts/jmsynapsewsvigdow6zstg",
-		"groupId": "dfs"
-	}
-}
