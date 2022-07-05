@@ -18,7 +18,7 @@ jobs:
       resource-group: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}"
     permissions:
       issues: write
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - name: Create comment for start
         uses: peter-evans/create-or-update-comment@v2
@@ -36,7 +36,7 @@ jobs:
         id: get-current-id
         run: |
           spName=$(az account show --query user.name -o tsv)
-          echo "::set-output name=spsid::$(az ad sp show --id $spName --query objectId -o tsv)"
+          echo "::set-output name=spsid::$(az ad sp show --id $spName --query id -o tsv)"
 
       - uses: actions/checkout@v3
 
@@ -99,7 +99,7 @@ jobs:
     needs: deploy-synapse-infra
     runs-on: ubuntu-latest
     if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - uses: azure/login@v1
         with:
@@ -114,7 +114,7 @@ jobs:
     needs: deploy-synapse-infra
     runs-on: ubuntu-latest
     if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - uses: actions/checkout@v3
       - name: Replace storage links
