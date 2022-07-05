@@ -1,0 +1,20 @@
+{
+	"name": "bulk_query",
+	"properties": {
+		"folder": {
+			"name": "NYCStrip"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    AVG(TipAmount) as Average, STDEV(TipAmount) as [stdev], MAX(TipAmount) as [MaxTip], AVG(TipAmount)+STDEV(TipAmount) [top], AVG(TipAmount)-STDEV(TipAmount) [bottom], COUNT(*) [Count], PassengerCount\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsewsvigdow6zstg.dfs.core.windows.net/jmsynapsewsfs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nWHERE PassengerCount>0\nGROUP BY PassengerCount\nORDER BY PassengerCount DESC",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
