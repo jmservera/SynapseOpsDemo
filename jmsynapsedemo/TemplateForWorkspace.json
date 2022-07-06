@@ -432,7 +432,7 @@
 					"name": "NYCStrip"
 				},
 				"content": {
-					"query": "-- This is auto-generated code\nSELECT\n    TOP 150 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemovigdowstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
+					"query": "-- This is auto-generated code\nSELECT\n    TOP 20 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemovigdowstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -498,48 +498,6 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-custstgacct--jmsynapsews-jmsynapsedl')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"privateLinkResourceId": "/subscriptions/f19b7695-9685-461e-9700-2d9674197593/resourceGroups/synapseeus/providers/Microsoft.Storage/storageAccounts/jmsynapsedl",
-				"groupId": "dfs"
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sql--jmsynapsews')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"privateLinkResourceId": "/subscriptions/f19b7695-9685-461e-9700-2d9674197593/resourceGroups/synapseeus/providers/Microsoft.Synapse/workspaces/jmsynapsews",
-				"groupId": "sql",
-				"fqdns": [
-					"jmsynapsews.89e80d0f-a2ea-47b1-b15c-ec096c689ee7.sql.azuresynapse.net"
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sqlOnDemand--jmsynapsews')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"privateLinkResourceId": "/subscriptions/f19b7695-9685-461e-9700-2d9674197593/resourceGroups/synapseeus/providers/Microsoft.Synapse/workspaces/jmsynapsews",
-				"groupId": "sqlOnDemand",
-				"fqdns": [
-					"jmsynapsews-ondemand.89e80d0f-a2ea-47b1-b15c-ec096c689ee7.sql.azuresynapse.net"
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
-			]
 		}
 	]
 }
