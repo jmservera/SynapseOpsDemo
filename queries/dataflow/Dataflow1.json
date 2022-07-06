@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Parquet2",
+						"referenceName": "Parquet1",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -62,7 +62,28 @@
 				"     validateSchema: false,",
 				"     input(",
 				"          DateID as integer,",
-				"          tipavg as decimal(23,8)",
+				"          MedallionID as integer,",
+				"          HackneyLicenseID as integer,",
+				"          PickupTimeID as integer,",
+				"          DropoffTimeID as integer,",
+				"          PickupGeographyID as integer,",
+				"          DropoffGeographyID as integer,",
+				"          PickupLatitude as double,",
+				"          PickupLongitude as double,",
+				"          PickupLatLong as string,",
+				"          DropoffLatitude as double,",
+				"          DropoffLongitude as double,",
+				"          DropoffLatLong as string,",
+				"          PassengerCount as integer,",
+				"          TripDurationSeconds as integer,",
+				"          TripDistanceMiles as double,",
+				"          PaymentType as string,",
+				"          FareAmount as decimal(19,4),",
+				"          SurchargeAmount as decimal(19,4),",
+				"          TaxAmount as decimal(19,4),",
+				"          TipAmount as decimal(19,4),",
+				"          TollsAmount as decimal(19,4),",
+				"          TotalAmount as decimal(19,4)",
 				"     ),",
 				"     format: 'parquet',",
 				"     umask: 0022,",
