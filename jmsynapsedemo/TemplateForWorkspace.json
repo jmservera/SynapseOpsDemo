@@ -13,13 +13,190 @@
 		},
 		"jmsynapsedemo-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/"
+			"defaultValue": "https://jmsynapsedemovigdowstg.dfs.core.windows.net/"
 		}
 	},
 	"variables": {
 		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/Dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Parquet1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "jmsynapsedemo-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "NYCTripSmall.parquet",
+						"fileSystem": "jmsynapsedemofs"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "DateID",
+						"type": "INT32"
+					},
+					{
+						"name": "MedallionID",
+						"type": "INT32"
+					},
+					{
+						"name": "HackneyLicenseID",
+						"type": "INT32"
+					},
+					{
+						"name": "PickupTimeID",
+						"type": "INT32"
+					},
+					{
+						"name": "DropoffTimeID",
+						"type": "INT32"
+					},
+					{
+						"name": "PickupGeographyID",
+						"type": "INT32"
+					},
+					{
+						"name": "DropoffGeographyID",
+						"type": "INT32"
+					},
+					{
+						"name": "PickupLatitude",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "PickupLongitude",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "PickupLatLong",
+						"type": "UTF8"
+					},
+					{
+						"name": "DropoffLatitude",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "DropoffLongitude",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "DropoffLatLong",
+						"type": "UTF8"
+					},
+					{
+						"name": "PassengerCount",
+						"type": "INT32"
+					},
+					{
+						"name": "TripDurationSeconds",
+						"type": "INT32"
+					},
+					{
+						"name": "TripDistanceMiles",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "PaymentType",
+						"type": "UTF8"
+					},
+					{
+						"name": "FareAmount",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "SurchargeAmount",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "TaxAmount",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "TipAmount",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "TollsAmount",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "TotalAmount",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 4
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/jmsynapsedemo-WorkspaceDefaultStorage')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/jmsynapsedemo-WorkspaceDefaultSqlServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
@@ -89,6 +266,108 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Dataflow1')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Parquet1",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Parquet1",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          DateID as integer,",
+						"          MedallionID as integer,",
+						"          HackneyLicenseID as integer,",
+						"          PickupTimeID as integer,",
+						"          DropoffTimeID as integer,",
+						"          PickupGeographyID as integer,",
+						"          DropoffGeographyID as integer,",
+						"          PickupLatitude as double,",
+						"          PickupLongitude as double,",
+						"          PickupLatLong as string,",
+						"          DropoffLatitude as double,",
+						"          DropoffLongitude as double,",
+						"          DropoffLatLong as string,",
+						"          PassengerCount as integer,",
+						"          TripDurationSeconds as integer,",
+						"          TripDistanceMiles as double,",
+						"          PaymentType as string,",
+						"          FareAmount as decimal(19,4),",
+						"          SurchargeAmount as decimal(19,4),",
+						"          TaxAmount as decimal(19,4),",
+						"          TipAmount as decimal(19,4),",
+						"          TollsAmount as decimal(19,4),",
+						"          TotalAmount as decimal(19,4)",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 aggregate(groupBy(DateID),",
+						"     TipAmountAvg = avg(TipAmount)) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          DateID as integer,",
+						"          MedallionID as integer,",
+						"          HackneyLicenseID as integer,",
+						"          PickupTimeID as integer,",
+						"          DropoffTimeID as integer,",
+						"          PickupGeographyID as integer,",
+						"          DropoffGeographyID as integer,",
+						"          PickupLatitude as double,",
+						"          PickupLongitude as double,",
+						"          PickupLatLong as string,",
+						"          DropoffLatitude as double,",
+						"          DropoffLongitude as double,",
+						"          DropoffLatLong as string,",
+						"          PassengerCount as integer,",
+						"          TripDurationSeconds as integer,",
+						"          TripDistanceMiles as double,",
+						"          PaymentType as string,",
+						"          FareAmount as decimal(19,4),",
+						"          SurchargeAmount as decimal(19,4),",
+						"          TaxAmount as decimal(19,4),",
+						"          TipAmount as decimal(19,4),",
+						"          TollsAmount as decimal(19,4),",
+						"          TotalAmount as decimal(19,4)",
+						"     ),",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/Parquet1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
 			"type": "Microsoft.Synapse/workspaces/credentials",
 			"apiVersion": "2019-06-01-preview",
@@ -107,7 +386,7 @@
 					"name": "NYCStrip"
 				},
 				"content": {
-					"query": "-- This is auto-generated code\nSELECT\n    AVG(TipAmount) as Average, STDEV(TipAmount) as [stdev], MAX(TipAmount) as [MaxTip], AVG(TipAmount)+STDEV(TipAmount) [top], AVG(TipAmount)-STDEV(TipAmount) [bottom], COUNT(*) [Count], PassengerCount\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nWHERE PassengerCount>0\nGROUP BY PassengerCount\nORDER BY PassengerCount DESC",
+					"query": "-- This is auto-generated code\nSELECT\n    AVG(TipAmount) as Average, STDEV(TipAmount) as [stdev], MAX(TipAmount) as [MaxTip], AVG(TipAmount)+STDEV(TipAmount) [top], AVG(TipAmount)-STDEV(TipAmount) [bottom], COUNT(*) [Count], PassengerCount\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemovigdowstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nWHERE PassengerCount>0\nGROUP BY PassengerCount\nORDER BY PassengerCount DESC",
 					"metadata": {
 						"language": "sql"
 					},
@@ -130,7 +409,7 @@
 					"name": "NYCStrip"
 				},
 				"content": {
-					"query": "-- CREATE LOGIN data_explorer WITH PASSWORD = 'My Very Strong Password 1234!';\n\n--CREATE USER data_explorer FOR LOGIN data_explorer;\n--GO\n--GRANT ADMINISTER DATABASE BULK OPERATIONS TO data_explorer;\n--GO\n\n-- CREATE EXTERNAL DATA SOURCE JmLake\n-- WITH ( LOCATION = 'https://jmsynapsedl.dfs.core.windows.net')\n\nSELECT\n   AVG(tipamount) tip, (pickuptimeid+1)/3600 as [hourday]\n   FROM\n    OPENROWSET(\n            BULK '/jmsynapsefs/',\n            DATA_SOURCE = 'JmLake',\n            FORMAT='PARQUET'\n    ) AS [result]\ngroup by ((pickuptimeid+1)/3600)\norder by [tip]",
+					"query": "-- CREATE LOGIN data_explorer WITH PASSWORD = 'My Very Strong Password 1234!';\n\n--CREATE USER data_explorer FOR LOGIN data_explorer;\n--GO\n--GRANT ADMINISTER DATABASE BULK OPERATIONS TO data_explorer;\n--GO\n\n-- CREATE EXTERNAL DATA SOURCE JmLake\n-- WITH ( LOCATION = 'https://jmsynapsedemovigdowstg.dfs.core.windows.net/')\n\nSELECT\n   AVG(tipamount) tip, (pickuptimeid+1)/3600 as [hourday]\n   FROM\n    OPENROWSET(\n            BULK '/jmsynapsefs/',\n            DATA_SOURCE = 'JmLake',\n            FORMAT='PARQUET'\n    ) AS [result]\ngroup by ((pickuptimeid+1)/3600)\norder by [tip]",
 					"metadata": {
 						"language": "sql"
 					},
@@ -153,7 +432,7 @@
 					"name": "NYCStrip"
 				},
 				"content": {
-					"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemolm4hsfstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
+					"query": "-- This is auto-generated code\nSELECT\n    TOP 150 *\nFROM\n    OPENROWSET(\n        BULK 'https://jmsynapsedemovigdowstg.dfs.core.windows.net/jmsynapsedemofs/NYCTripSmall.parquet',\n        FORMAT = 'PARQUET'\n    ) AS [result]\nORDER BY TipAmount DESC\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -164,6 +443,52 @@
 					"resultLimit": 5000
 				},
 				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook 1')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "c3ecc97b-e444-4d80-ba88-43438a650578"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"%%pyspark\n",
+							"spark.sql(\"CREATE TABLE IF NOT EXISTS default.YourTableName USING Parquet LOCATION 'YourFilePath'\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
 			},
 			"dependsOn": []
 		},
