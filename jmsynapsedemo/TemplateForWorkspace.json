@@ -491,13 +491,6 @@
 				]
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/default')]",
-			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {},
-			"dependsOn": []
 		}
 	]
 }
