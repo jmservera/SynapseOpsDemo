@@ -46,7 +46,7 @@ param managedVirtualNetworkSettings object
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var defaultDataLakeStorageAccountUrl = 'https://${defaultDataLakeStorageAccountName}.dfs.${environment()}'
 
-resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
+resource workspace_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
   name: name
   location: location
   identity: {
@@ -74,8 +74,8 @@ resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
-resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {
-  parent: name_resource
+resource workspace_firewall_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {
+  parent: workspace_resource
   location: location
   name: 'allowAll'
   properties: {
@@ -99,7 +99,7 @@ module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bic
     userObjectId: userObjectId
   }
   dependsOn: [
-    name_resource
+    workspace_resource
   ]
 }
 
@@ -112,7 +112,7 @@ module UpdateStorageAccountNetworkingAcls './nested_UpdateStorageAccountNetworki
     workspaceStorageAccountProperties: workspaceStorageAccountProperties
   }
   dependsOn: [
-    name_resource
+    workspace_resource
   ]
 }
 
