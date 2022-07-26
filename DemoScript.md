@@ -8,9 +8,11 @@ A day before the demo you need to deploy two Synapse environments, the main one 
 
 The first environment should be connected to this repo, so follow the steps to connect the workspace to the repo, set the collab branch and use `/queries` as the `Root folder`, but do not check the "Import existing resource" option:
 
-![Configure repo](images/configure_repo.png)
+![Configure repo](./contents/configure_repo.png)
 
 ## Script
+
+Start with [this short 10-minute presentation](./contents/Synapse%20Ops.pdf) talking about how a production environment looks like and what an integration with DevOps means for a Synapse workspace.
 
 1. Integrate Synapse with Git
     * Show demo already integrated
@@ -35,4 +37,4 @@ The first environment should be connected to this repo, so follow the steps to c
     * Show deployment how it started
     * Show action file, explain it, show bicep
     * Now go into codespace and show bicep file and Bicep visualizer:
-    ![Bicep visualizer](./images/bicep_visualizer.png)
+    ![Bicep visualizer](./contents/bicep_visualizer.png)
