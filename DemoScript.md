@@ -1,6 +1,6 @@
 # Demo Script
 
-This is the steps usually taken for performing this demo.
+Find here the steps usually taken for performing this demo.
 
 ## Demo preparation
 
