@@ -12,7 +12,7 @@ The first environment should be connected to this repo, so follow the steps to c
 
 ## Script
 
-Start with [this short 10-minute presentation](./contents/Synapse%20Ops.pdf) talking about how a production environment looks like and what an integration with DevOps means for a Synapse workspace.
+Start with [this short 10-minute presentation](./contents/Synapse%20Ops.pdf) talking about how a production environment looks like and what an integration with DevOps means for a Synapse workspace. The rest of the presentation is this script:
 
 1. Integrate Synapse with Git
     * Show demo already integrated
