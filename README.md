@@ -1,5 +1,4 @@
-# SynapseOpsDemo
-DataOps demo
+# SynapseOps Demo
 
 ## Create a Synapse Workspace from an issue
 
@@ -34,10 +33,12 @@ To create an Azure Synapse workspace, a user must have Azure Contributor role an
     az role assignment create --assignee {object-id} --role 'User Access Administrator' --scope /subscriptions/{subscription-id}
     ```
 
-
 Then go to create a [new issue](../../issues/new?assignees=&labels=resource+creation&template=create-synapse-environment.yml&title=%5BCreate%5D%3A+) and fill the form to automatically create a new Synapse environment.
-
 
 ## Test the embedded template
 
 [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjmenterprisedemo%2FSynapseOpsDemo%2Fmain%2Ftemplate%2Ftemplate.json) [![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjmenterprisedemo%2FSynapseOpsDemo%2Fmain%2Ftemplate%2Ftemplate.json)
+
+## Demonstration Script
+
+If you want to demonstrate this environment to your customers check the [Demo Script](DemoScript.md)
