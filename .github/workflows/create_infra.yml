@@ -18,7 +18,7 @@ jobs:
       resource-group: "${{ fromJSON(steps.issue-parser.outputs.jsonString).resource-group }}"
     permissions:
       issues: write
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - name: Create comment for start
         uses: peter-evans/create-or-update-comment@v2
@@ -36,7 +36,7 @@ jobs:
         id: get-current-id
         run: |
           spName=$(az account show --query user.name -o tsv)
-          echo "::set-output name=spsid::$(az ad sp show --id $spName --query objectId -o tsv)"
+          echo "::set-output name=spsid::$(az ad sp show --id $spName --query id -o tsv)"
 
       - uses: actions/checkout@v3
 
@@ -88,16 +88,18 @@ jobs:
           comment: |
             **Deployment finished. Your workspace has been created**
 
-            You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}                      
+            :wave: @${{ github.event.issue.user.login }}, this issue was automatically closed after creating the resource.
+
+            You may access your newly created workspace in the following link: ${{ steps.template.outputs.workspaceLink }}
+
             Find the full run :  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} success.
-            @${{ github.event.issue.user.login }} this issue was automatically closed after creating the resource.
 
   deploy-demo-data:
     name: Deploy Demo Data
     needs: deploy-synapse-infra
     runs-on: ubuntu-latest
     if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - uses: azure/login@v1
         with:
@@ -106,17 +108,18 @@ jobs:
       - run: |
           echo "upload data"
           az storage blob upload --account-name ${{ needs.deploy-synapse-infra.outputs.storage-name }} --container-name "${{ needs.deploy-synapse-infra.outputs.container-name }}" --name NYCTripSmall.parquet --file data/NYCTripSmall.parquet --auth-mode login
+
   workspace-deployment:
     name: Deploy Synapse Workspace
     needs: deploy-synapse-infra
     runs-on: ubuntu-latest
     if: ${{ needs.deploy-synapse-infra.outputs.demo-data == 'Demo data' }}
-    environment: synapseqa
+    environment: synapsedemo
     steps:
       - uses: actions/checkout@v3
       - name: Replace storage links
         run: |
-          sed -i "s|https://jmsynapsedl.dfs.core.windows.net/jmsynapsefs|{{ needs.deploy-synapse-infra.outputs.datalake-link }}/${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
+          sed -i "s|https://jmsynapsedl.dfs.core.windows.net/jmsynapsefs|${{ needs.deploy-synapse-infra.outputs.datalake-link }}/${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
           sed -i "s|jmsynapsefs|${{ needs.deploy-synapse-infra.outputs.container-name }}|" "./jmsynapsews/TemplateForWorkspace.json"
       - name: Generate Overrides file for this deployment
         run: |
@@ -137,6 +140,7 @@ jobs:
           tenantId: "${{secrets.TENANTID}}"
           DeleteArtifactsNotInTemplate: "true"
           managedIdentity: "False"
+
   comment-on-failure:
     name: Comment on failure
     needs: [deploy-synapse-infra, deploy-demo-data, workspace-deployment]

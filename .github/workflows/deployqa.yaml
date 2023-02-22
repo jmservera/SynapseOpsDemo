@@ -1,43 +1,40 @@
-# This is a basic workflow to help you get started with Actions
-
 name: DeployToQA
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [qa]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      targetWorkspace:
+        default: jmsynapseqaws
+        required: true
+        description: 'Name of the target workspace'
+      resourceGroup:
+        default: synapsedemo
+        required: true
+        description: 'Name of the resource group containing the target workspace'
+      template:
+        default: jmsynapsedemo
+        required: true
+        description: 'Name of the original template'
+  pull_request:
+    branches: [ qa ]
+    types: [closed]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  deployment:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    environment: synapseqa
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+  call-deploy-to-qa-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: jmenterprisedemo/SynapseOpsDemo/.github/workflows/deployqa_reusable.yaml@qa
+    with:
+      targetWorkspace: '${{ github.event.inputs.targetWorkspace }}'
+      resourceGroup: '${{ github.event.inputs.resourceGroup }}'
+      template: '${{ github.event.inputs.template }}'
+    secrets: inherit
 
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  call-deploy-to-qa-push:  
+    if: ${{ github.event_name == 'push' && github.event.pull_request.merged == true }}
+    uses: jmenterprisedemo/SynapseOpsDemo/.github/workflows/deployqa_reusable.yaml@qa
+    with:
+      targetWorkspace: jmsynapseqaws
+      resourceGroup: synapsedemo
+      template: jmsynapsedemo
+    secrets: inherit
 
-      - uses: azure/synapse-workspace-deployment@release-1.0
-        with:
-          TargetWorkspaceName: "jmsynapseqaws"
-          TemplateFile: "./jmsynapsews/TemplateForWorkspace.json"
-          ParametersFile: "./jmsynapsews/TemplateParametersForWorkspace.json"
-          OverrideArmParameters: "./jmsynapsews/TemplateParametersForWorkspace.json"
-          environment: "Azure Public"
-          resourceGroup: "synapseeus"
-          clientId: ${{secrets.CLIENTID}}
-          clientSecret: ${{secrets.CLIENTSECRET}}
-          subscriptionId: "${{secrets.SUBSCRIPTIONID}}"
-          tenantId: "${{secrets.TENANTID}}"
-          DeleteArtifactsNotInTemplate: "true"
-          managedIdentity: "False"
